@@ -1,1 +1,32 @@
-<h1>Selamat Datang di kota Bogor Raya</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daftar Laporan</title>
+</head>
+<body>
+    <h1>Daftar Laporan Smart City</h1>
+
+    <a href="{% url 'add_report' %}">Tambah Laporan</a>
+
+    <hr>
+
+    {% if reports %}
+        {% for report in reports %}
+            <div style="margin-bottom: 20px;">
+                <h3>{{ report.title }}</h3>
+                <p><strong>Kategori:</strong> {{ report.category }}</p>
+                <p><strong>Deskripsi:</strong> {{ report.description }}</p>
+                <p><strong>Lokasi:</strong> {{ report.location }}</p>
+                <p><strong>Status:</strong> {{ report.status }}</p>
+                <p><strong>Dibuat:</strong> {{ report.created_at }}</p>
+
+                <a href="{% url 'edit_report' report.id %}">Edit</a>
+                <a href="{% url 'delete_report' report.id %}">Delete</a>
+            </div>
+            <hr>
+        {% endfor %}
+    {% else %}
+        <p>Belum ada laporan.</p>
+    {% endif %}
+</body>
+</html>
