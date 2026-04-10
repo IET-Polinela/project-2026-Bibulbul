@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Report List</title>
+</head>
+<body>
+    <h1>Daftar Laporan Bogor SmartCity</h1>
+    <a href="{% url 'report_create' %}">Tambah Laporan</a>
+
+    <ul>
+        {% for report in reports %}
+            <li>
+                <h3>{{ report.title }}</h3>
+                <p>Kategori: {{ report.category }}</p>
+                <p>Lokasi: {{ report.location }}</p>
+                <p>Status: {{ report.get_status_display }}</p>
+
+                <a href="{% url 'report_detail' report.pk %}">Detail</a>
+                <a href="{% url 'report_update' report.pk %}">Edit</a>
+                <a href="{% url 'report_delete' report.pk %}">Delete</a>
+
+                {% if report.status == 'REPORTED' %}
+                    <form method="post" action="{% url 'report_update_status' report.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="VERIFIED">
+                        <button type="submit">Ubah ke Verified</button>
+                    </form>
+                {% elif report.status == 'VERIFIED' %}
+                    <form method="post" action="{% url 'report_update_status' report.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="IN_PROGRESS">
+                        <button type="submit">Ubah ke In Progress</button>
+                    </form>
+                {% elif report.status == 'IN_PROGRESS' %}
+                    <form method="post" action="{% url 'report_update_status' report.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="RESOLVED">
+                        <button type="submit">Ubah ke Resolved</button>
+                    </form>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>Belum ada laporan.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tambah Laporan</title>
+    <title>Form Report</title>
 </head>
 <body>
-    <h1>Tambah Laporan</h1>
+    <h1>Form Laporan</h1>
 
-    <form method="POST">
+    <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Simpan</button>
     </form>
 
-    <a href="{% url 'home' %}">Kembali ke daftar laporan</a>
+    <a href="{% url 'report_list' %}">Kembali</a>
 </body>
 </html>
