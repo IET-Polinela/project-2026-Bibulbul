@@ -3,7 +3,7 @@ from django.db import models
 STATUS_CHOICES =[
     ('REPORTED', 'Reported'),
     ('VERIFIED', 'Verified'),
-    ('IN_PROGRESS', 'In_Progress'),
+    ('IN_PROGRESS', 'In Progress'),
     ('RESOLVED', 'Resolved'),
 ]
 class Report(models.Model):

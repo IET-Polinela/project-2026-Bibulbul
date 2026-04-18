@@ -1,47 +1,88 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Report List</title>
-</head>
-<body>
-    <h1>Daftar Laporan Bogor SmartCity</h1>
-    <a href="{% url 'report_create' %}">Tambah Laporan</a>
+{% extends 'base.html' %}
 
-    <ul>
-        {% for report in reports %}
-            <li>
-                <h3>{{ report.title }}</h3>
-                <p>Kategori: {{ report.category }}</p>
-                <p>Lokasi: {{ report.location }}</p>
-                <p>Status: {{ report.get_status_display }}</p>
+{% block title %}Daftar Laporan{% endblock %}
 
-                <a href="{% url 'report_detail' report.pk %}">Detail</a>
-                <a href="{% url 'report_update' report.pk %}">Edit</a>
-                <a href="{% url 'report_delete' report.pk %}">Delete</a>
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Reports</li>
+    </ol>
+</nav>
 
-                {% if report.status == 'REPORTED' %}
-                    <form method="post" action="{% url 'report_update_status' report.pk %}" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="VERIFIED">
-                        <button type="submit">Ubah ke Verified</button>
-                    </form>
-                {% elif report.status == 'VERIFIED' %}
-                    <form method="post" action="{% url 'report_update_status' report.pk %}" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="IN_PROGRESS">
-                        <button type="submit">Ubah ke In Progress</button>
-                    </form>
-                {% elif report.status == 'IN_PROGRESS' %}
-                    <form method="post" action="{% url 'report_update_status' report.pk %}" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="status" value="RESOLVED">
-                        <button type="submit">Ubah ke Resolved</button>
-                    </form>
-                {% endif %}
-            </li>
-        {% empty %}
-            <li>Belum ada laporan.</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Daftar Laporan Bogor SmartCity</h2>
+    <a href="{% url 'report_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Tambah Laporan
+    </a>
+</div>
+
+{% if reports %}
+<div class="table-responsive">
+    <table class="table table-bordered table-hover bg-white shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Judul</th>
+                <th>Kategori</th>
+                <th>Lokasi</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td>{{ report.title }}</td>
+                <td>{{ report.category }}</td>
+                <td>{{ report.location }}</td>
+                <td>
+                    {% if report.status == 'REPORTED' %}
+                        <span class="badge bg-secondary">Reported</span>
+                    {% elif report.status == 'VERIFIED' %}
+                        <span class="badge bg-primary">Verified</span>
+                    {% elif report.status == 'IN_PROGRESS' %}
+                        <span class="badge bg-warning text-dark">In Progress</span>
+                    {% elif report.status == 'RESOLVED' %}
+                        <span class="badge bg-success">Resolved</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{% url 'report_detail' report.pk %}" class="btn btn-sm btn-secondary">Detail</a>
+                        <a href="{% url 'report_update' report.pk %}" class="btn btn-sm btn-info text-dark">Edit</a>
+                        <a href="{% url 'report_delete' report.pk %}" class="btn btn-sm btn-danger">Hapus</a>
+
+                        {% if report.status == 'REPORTED' %}
+                            <form method="post" action="{% url 'report_update_status' report.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="VERIFIED">
+                                <button type="submit" class="btn btn-sm btn-primary">Verifikasi</button>
+                            </form>
+                        {% elif report.status == 'VERIFIED' %}
+                            <form method="post" action="{% url 'report_update_status' report.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="IN_PROGRESS">
+                                <button type="submit" class="btn btn-sm btn-warning text-dark">Proses</button>
+                            </form>
+                        {% elif report.status == 'IN_PROGRESS' %}
+                            <form method="post" action="{% url 'report_update_status' report.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="RESOLVED">
+                                <button type="submit" class="btn btn-sm btn-success">Selesaikan</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state shadow-sm">
+    <h4 class="mb-2">Belum ada laporan</h4>
+    <p class="text-muted">Silakan tambahkan laporan pertama kamu.</p>
+    <a href="{% url 'report_create' %}" class="btn btn-primary">Tambah laporan</a>
+</div>
+{% endif %}
+{% endblock %}

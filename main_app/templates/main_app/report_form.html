@@ -1,17 +1,56 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Form Report</title>
-</head>
-<body>
-    <h1>Form Laporan</h1>
+{% extends 'base.html' %}
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Simpan</button>
-    </form>
+{% block title %}
+    {% if form.instance.pk %}Edit Laporan{% else %}Tambah Laporan{% endif %}
+{% endblock %}
 
-    <a href="{% url 'report_list' %}">Kembali</a>
-</body>
-</html>
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'report_list' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+            {% if form.instance.pk %}Edit{% else %}Tambah{% endif %}
+        </li>
+    </ol>
+</nav>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="mb-4">
+            {% if form.instance.pk %}Edit Laporan{% else %}Tambah Laporan{% endif %}
+        </h2>
+
+        <form method="post" onsubmit="return handleSubmitLoading(this)">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Judul</label>
+                {{ form.title }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.category.id_for_label }}" class="form-label">Kategori</label>
+                {{ form.category }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.description.id_for_label }}" class="form-label">Deskripsi</label>
+                {{ form.description }}
+            </div>
+
+            <div class="mb-3">
+                <label for="{{ form.location.id_for_label }}" class="form-label">Lokasi</label>
+                {{ form.location }}
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    {% if form.instance.pk %}Update{% else %}Submit{% endif %}
+                </button>
+                <a href="{% url 'report_list' %}" class="btn btn-secondary">Kembali</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

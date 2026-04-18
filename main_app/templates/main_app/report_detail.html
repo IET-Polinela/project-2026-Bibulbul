@@ -1,16 +1,54 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Detail Report</title>
-</head>
-<body>
-    <h1>{{ report.title }}</h1>
-    <p>Kategori: {{ report.category }}</p>
-    <p>Deskripsi: {{ report.description }}</p>
-    <p>Lokasi: {{ report.location }}</p>
-    <p>Status: {{ report.get_status_display }}</p>
-    <p>Dibuat pada: {{ report.created_at }}</p>
+{% extends 'base.html' %}
 
-    <a href="{% url 'report_list' %}">Kembali ke daftar</a>
-</body>
-</html>
+{% block title %}Detail Laporan{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'report_list' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Detail</li>
+    </ol>
+</nav>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h2 class="mb-4">{{ report.title }}</h2>
+
+        <div class="mb-3">
+            <strong>Kategori:</strong>
+            <span>{{ report.category }}</span>
+        </div>
+
+        <div class="mb-3">
+            <strong>Deskripsi:</strong>
+            <p class="mb-0">{{ report.description }}</p>
+        </div>
+
+        <div class="mb-3">
+            <strong>Lokasi:</strong>
+            <span>{{ report.location }}</span>
+        </div>
+
+        <div class="mb-3">
+            <strong>Status:</strong>
+            {% if report.status == 'REPORTED' %}
+                <span class="badge bg-secondary">Reported</span>
+            {% elif report.status == 'VERIFIED' %}
+                <span class="badge bg-primary">Verified</span>
+            {% elif report.status == 'IN_PROGRESS' %}
+                <span class="badge bg-warning text-dark">In Progress</span>
+            {% elif report.status == 'RESOLVED' %}
+                <span class="badge bg-success">Resolved</span>
+            {% endif %}
+        </div>
+
+        <div class="mb-4">
+            <strong>Dibuat pada:</strong>
+            <span>{{ report.created_at }}</span>
+        </div>
+
+        <a href="{% url 'report_list' %}" class="btn btn-secondary">Kembali ke daftar</a>
+    </div>
+</div>
+{% endblock %}

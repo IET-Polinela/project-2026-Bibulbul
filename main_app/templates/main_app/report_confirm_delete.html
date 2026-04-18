@@ -1,17 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Delete Report</title>
-</head>
-<body>
-    <h1>Hapus Laporan</h1>
-    <p>Apakah kamu yakin ingin menghapus laporan "{{ object.title }}"?</p>
+{% extends 'base.html' %}
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit">Ya, hapus</button>
-    </form>
+{% block title %}Hapus Laporan{% endblock %}
 
-    <a href="{% url 'report_list' %}">Batal</a>
-</body>
-</html>
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'report_list' %}">Reports</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Hapus</li>
+    </ol>
+</nav>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <h2 class="mb-3">Hapus Laporan</h2>
+        <p class="mb-4">
+            Apakah kamu yakin ingin menghapus laporan
+            <strong>"{{ object.title }}"</strong>?
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">Ya, hapus</button>
+                <a href="{% url 'report_list' %}" class="btn btn-secondary">Batal</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
