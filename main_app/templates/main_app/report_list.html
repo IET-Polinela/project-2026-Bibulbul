@@ -2,6 +2,46 @@
 
 {% block title %}Daftar Laporan{% endblock %}
 
+{% block extra_css %}
+<style>
+    .report-dark-table {
+        background-color: #1e293b;
+        color: #f8fafc;
+        border-color: rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .report-dark-table thead {
+        background: linear-gradient(90deg, #0b132b, #1e3a8a);
+        color: #f8fafc;
+    }
+
+    .report-dark-table th {
+        background: transparent !important;
+        color: #f8fafc;
+        border-color: rgba(255, 255, 255, 0.12);
+        padding: 14px 12px;
+    }
+
+    .report-dark-table td {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border-color: rgba(255, 255, 255, 0.10);
+        padding: 14px 12px;
+    }
+
+    .report-dark-table tbody tr:nth-child(even) td {
+        background-color: #172033 !important;
+    }
+
+    .report-dark-table tbody tr:hover td {
+        background-color: #273449 !important;
+        color: #ffffff !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -17,10 +57,22 @@
     </a>
 </div>
 
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="mb-3">Search Laporan</h5>
+        <input
+            type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Cari laporan berdasarkan judul, kategori, lokasi, atau status..."
+        >
+    </div>
+</div>
+
 {% if reports %}
 <div class="table-responsive">
-    <table class="table table-bordered table-hover bg-white shadow-sm">
-        <thead class="table-dark">
+    <table class="table table-bordered table-hover shadow-sm report-dark-table">
+        <thead>
             <tr>
                 <th>Judul</th>
                 <th>Kategori</th>
@@ -29,7 +81,7 @@
                 <th>Aksi</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="reportTableBody">
             {% for report in reports %}
             <tr>
                 <td>{{ report.title }}</td>
@@ -48,7 +100,14 @@
                 </td>
                 <td>
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="{% url 'report_detail' report.pk %}" class="btn btn-sm btn-secondary">Detail</a>
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-secondary detail-btn"
+                            data-id="{{ report.id }}"
+                        >
+                            Detail
+                        </button>
+
                         <a href="{% url 'report_update' report.pk %}" class="btn btn-sm btn-info text-dark">Edit</a>
                         <a href="{% url 'report_delete' report.pk %}" class="btn btn-sm btn-danger">Hapus</a>
 
@@ -85,4 +144,188 @@
     <a href="{% url 'report_create' %}" class="btn btn-primary">Tambah laporan</a>
 </div>
 {% endif %}
+
+<div class="modal fade" id="reportDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Laporan</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <h4 id="modalTitle" class="mb-3"></h4>
+
+                <p><strong>Kategori:</strong> <span id="modalCategory"></span></p>
+                <p><strong>Lokasi:</strong> <span id="modalLocation"></span></p>
+                <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+
+                <hr>
+
+                <p><strong>Deskripsi:</strong></p>
+                <p id="modalDescription"></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    const reportTableBody = document.getElementById('reportTableBody');
+    const modalElement = document.getElementById('reportDetailModal');
+    const reportDetailModal = new bootstrap.Modal(modalElement);
+
+    let debounceTimer;
+
+    function getStatusBadge(status) {
+        if (status === 'REPORTED') {
+            return '<span class="badge bg-secondary">Reported</span>';
+        }
+
+        if (status === 'VERIFIED') {
+            return '<span class="badge bg-primary">Verified</span>';
+        }
+
+        if (status === 'IN_PROGRESS') {
+            return '<span class="badge bg-warning text-dark">In Progress</span>';
+        }
+
+        if (status === 'RESOLVED') {
+            return '<span class="badge bg-success">Resolved</span>';
+        }
+
+        return `<span class="badge bg-dark">${status}</span>`;
+    }
+
+    function getActionButtons(report) {
+        let statusButton = '';
+
+        if (report.status === 'REPORTED') {
+            statusButton = `
+                <form method="post" action="/reports/${report.id}/update-status/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <input type="hidden" name="status" value="VERIFIED">
+                    <button type="submit" class="btn btn-sm btn-primary">Verifikasi</button>
+                </form>
+            `;
+        } else if (report.status === 'VERIFIED') {
+            statusButton = `
+                <form method="post" action="/reports/${report.id}/update-status/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <input type="hidden" name="status" value="IN_PROGRESS">
+                    <button type="submit" class="btn btn-sm btn-warning text-dark">Proses</button>
+                </form>
+            `;
+        } else if (report.status === 'IN_PROGRESS') {
+            statusButton = `
+                <form method="post" action="/reports/${report.id}/update-status/">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <input type="hidden" name="status" value="RESOLVED">
+                    <button type="submit" class="btn btn-sm btn-success">Selesaikan</button>
+                </form>
+            `;
+        }
+
+        return `
+            <div class="d-flex flex-wrap gap-2">
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary detail-btn"
+                    data-id="${report.id}"
+                >
+                    Detail
+                </button>
+
+                <a href="/reports/${report.id}/edit/" class="btn btn-sm btn-info text-dark">Edit</a>
+                <a href="/reports/${report.id}/delete/" class="btn btn-sm btn-danger">Hapus</a>
+
+                ${statusButton}
+            </div>
+        `;
+    }
+
+    function fetchReports(keyword) {
+        fetch(`/reports/search-json/?q=${encodeURIComponent(keyword)}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Data JSON Live Search:', data);
+
+                reportTableBody.innerHTML = '';
+
+                if (data.reports.length === 0) {
+                    reportTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                Tidak ada laporan yang sesuai.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                data.reports.forEach(report => {
+                    reportTableBody.innerHTML += `
+                        <tr>
+                            <td>${report.title}</td>
+                            <td>${report.category}</td>
+                            <td>${report.location}</td>
+                            <td>${getStatusBadge(report.status)}</td>
+                            <td>${getActionButtons(report)}</td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(error => {
+                console.error('Gagal mengambil data live search:', error);
+            });
+    }
+
+    const originalTableHTML = reportTableBody.innerHTML;
+
+    searchInput.addEventListener('keyup', function () {
+        clearTimeout(debounceTimer);
+
+        debounceTimer = setTimeout(function () {
+            const keyword = searchInput.value.trim();
+
+            if (keyword === '') {
+                reportTableBody.innerHTML = originalTableHTML;
+                return;
+            }
+
+            fetchReports(keyword);
+        }, 400);
+    });
+
+    reportTableBody.addEventListener('click', function (event) {
+        const detailButton = event.target.closest('.detail-btn');
+
+        if (!detailButton) {
+            return;
+        }
+
+        const reportId = detailButton.dataset.id;
+
+        fetch(`/reports/detail-json/${reportId}/`)
+            .then(response => response.json())
+            .then(report => {
+                console.log('Data JSON Detail Modal:', report);
+
+                document.getElementById('modalTitle').textContent = report.title;
+                document.getElementById('modalCategory').textContent = report.category;
+                document.getElementById('modalLocation').textContent = report.location;
+                document.getElementById('modalDescription').textContent = report.description;
+                document.getElementById('modalStatus').innerHTML = getStatusBadge(report.status);
+
+                reportDetailModal.show();
+            })
+            .catch(error => {
+                console.error('Gagal mengambil detail laporan:', error);
+            });
+    });
+});
+</script>
 {% endblock %}

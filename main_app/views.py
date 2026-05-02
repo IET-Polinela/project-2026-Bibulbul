@@ -3,6 +3,9 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.views import View
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
+from django.http import JsonResponse
+from django.db.models import Q
+
 from .models import Report
 from .forms import ReportForm
 
@@ -113,3 +116,51 @@ class ReportUpdateStatusView(AdminRequiredMixin, View):
             messages.error(request, 'Perubahan status tidak valid.')
 
         return redirect('report_list')
+
+
+class ReportSearchJsonView(View):
+    def get(self, request, *args, **kwargs):
+        keyword = request.GET.get('q', '')
+
+        reports = Report.objects.all()
+
+        if keyword:
+            reports = reports.filter(
+                Q(title__icontains=keyword) |
+                Q(category__icontains=keyword) |
+                Q(location__icontains=keyword) |
+                Q(status__icontains=keyword)
+            )
+
+        reports = reports.order_by('-id')[:50]
+
+        data = {
+            'reports': [
+                {
+                    'id': report.id,
+                    'title': report.title,
+                    'category': report.category,
+                    'location': report.location,
+                    'status': report.status,
+                }
+                for report in reports
+            ]
+        }
+
+        return JsonResponse(data)
+
+
+class ReportDetailJsonView(View):
+    def get(self, request, pk, *args, **kwargs):
+        report = get_object_or_404(Report, pk=pk)
+
+        data = {
+            'id': report.id,
+            'title': report.title,
+            'category': report.category,
+            'description': report.description,
+            'location': report.location,
+            'status': report.status,
+        }
+
+        return JsonResponse(data)
