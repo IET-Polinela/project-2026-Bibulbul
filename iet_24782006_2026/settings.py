@@ -40,10 +40,22 @@ INSTALLED_APPS = [
     'main_app',
     'dashboard_24782006',
     'rest_framework',
+    'rest_framework_simplejwt',
     'usermanagement_24782006',
     'about',
     'contacts',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
 
 AUTH_USER_MODEL = 'usermanagement_24782006.CustomUser'
 LOGIN_REDIRECT_URL = '/'

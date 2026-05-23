@@ -13,10 +13,17 @@ class Report(models.Model):
     category = models.CharField(max_length=100)
     description = models.TextField()
     location = models.CharField(max_length=200)
+    reporter = models.ForeignKey(      # ← tambahkan ini
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reports',
+        null=True,
+        blank=True
+    )
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default='REPORTED'
+        default='REPORTED',
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
