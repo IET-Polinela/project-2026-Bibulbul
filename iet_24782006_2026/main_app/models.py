@@ -13,7 +13,7 @@ class Report(models.Model):
     category = models.CharField(max_length=100)
     description = models.TextField()
     location = models.CharField(max_length=200)
-    reporter = models.ForeignKey(      # ← tambahkan ini
+    reporter = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='reports',
