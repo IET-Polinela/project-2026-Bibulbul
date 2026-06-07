@@ -1,43 +1,56 @@
+from django.db.models import Q
 from rest_framework import viewsets, permissions
+from rest_framework.pagination import PageNumberPagination
 from .models import Report
 from .serializers import ReportSerializer
 from .permissions import IsOwnerAndDraftOrReadOnly, IsCitizenOnly, IsAdminStatusOnly
 
+# Aktifkan Pagination
+class ReportPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
+    pagination_class = ReportPagination
 
     def get_queryset(self):
         user = self.request.user
 
-        if user.is_admin:
-            # Admin lihat semua laporan KECUALI DRAFT
-            return Report.objects.exclude(status='DRAFT')
+        # Sorting berdasarkan update terbaru
+        queryset = Report.objects.all().order_by('-updated_at')
 
-        # Citizen lihat laporan miliknya sendiri + laporan dari Admin
-        admin_reports = Report.objects.filter(
-            reporter__is_admin=True
-        ).exclude(status='DRAFT')
-        own_reports = Report.objects.filter(reporter=user)
+        # Server-side filtering berdasarkan parameter ?tab=
+        tab = self.request.query_params.get('tab', None)
 
-        return (admin_reports | own_reports).distinct()
+        if tab == 'my_reports':
+            # Hanya laporan milik user yang login
+            queryset = queryset.filter(reporter=user)
+
+        elif tab == 'feed':
+            # Laporan dari warga lain yang bukan DRAFT
+            queryset = queryset.filter(
+                ~Q(reporter=user) & ~Q(status='DRAFT')
+            )
+
+        else:
+            # Default (sama seperti sebelumnya)
+            queryset = queryset.filter(
+                ~Q(status='DRAFT') | Q(status='DRAFT', reporter=user)
+            )
+
+        return queryset
 
     def get_permissions(self):
         if self.action == 'create':
-            # Hanya Citizen yang boleh create
             return [permissions.IsAuthenticated(), IsCitizenOnly()]
-
         if self.action in ['update', 'partial_update']:
             if self.request.user.is_admin:
-                # Admin hanya boleh ubah status
                 return [permissions.IsAuthenticated(), IsAdminStatusOnly()]
-            # Citizen hanya boleh edit miliknya sendiri + status DRAFT
             return [permissions.IsAuthenticated(), IsOwnerAndDraftOrReadOnly()]
-
         if self.action == 'destroy':
-            # Hanya citizen pemilik laporan + status DRAFT yang boleh delete
             return [permissions.IsAuthenticated(), IsOwnerAndDraftOrReadOnly()]
-
-        # List & Detail: semua yang login boleh akses
         return [permissions.IsAuthenticated()]
 
     def perform_create(self, serializer):
