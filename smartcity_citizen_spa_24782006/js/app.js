@@ -232,9 +232,14 @@ function renderList(reports) {
         const s = statusConfig[report.status] || { color: 'secondary', label: report.status, progress: 0 };
 
         const editButton = (report.is_owner && report.status === 'DRAFT') ? `
-            <button class="btn btn-sm btn-outline-secondary" onclick="editDraft(${report.id})">
-                <i class="bi bi-pencil me-1"></i>Edit
-            </button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" onclick="editDraft(${report.id})">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteDraft(${report.id})">
+                    <i class="bi bi-trash me-1"></i>Hapus
+                </button>
+            </div>
         ` : '';
 
         return `
@@ -379,6 +384,22 @@ async function editDraft(id) {
     const modal = new bootstrap.Modal(document.getElementById('reportModal'));
     modal.show();
     setupModalButtons();
+}
+
+// =====================
+// HAPUS DRAFT
+// =====================
+async function deleteDraft(id) {
+    if (!confirm('Yakin ingin menghapus laporan draft ini?')) return;
+
+    const response = await requestAPI(`/api/report/${id}/`, 'DELETE');
+
+    if (response && response.status === 204) {
+        showToast('Laporan berhasil dihapus.', 'success');
+        loadDashboardData(currentTab, currentPage);
+    } else {
+        showToast('Gagal menghapus laporan.', 'danger');
+    }
 }
 
 // =====================

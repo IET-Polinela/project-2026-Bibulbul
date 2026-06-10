@@ -3,16 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Warga - Smart City Tracker</title>
-
-    <!-- Bootstrap CSS -->
+    <title>Portal Warga — Smart City Tracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons (wajib, bukan emoji!) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
     <style>
-        body { background-color: #f4f6f9; }
-        .spa-container { min-height: calc(100vh - 80px); }
+        body {
+            background: linear-gradient(to bottom, #0f172a, #111827);
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: linear-gradient(90deg, #0b132b, #1e3a8a) !important;
+        }
+        .spa-container { min-height: calc(100vh - 120px); }
+        #toast-container {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 280px;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.95) !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 16px !important;
+        }
+        .card h6, .card p, .card small, .card span {
+            color: #f8fafc !important;
+        }
+        .text-muted { color: #94a3b8 !important; }
+        .text-dark  { color: #0f172a !important; }
+        .form-control, textarea, input {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(96, 165, 250, 0.45) !important;
+            border-radius: 10px !important;
+        }
+        .form-control::placeholder { color: #94a3b8 !important; }
+        .form-control:focus {
+            background-color: #111827 !important;
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
+            color: #fff !important;
+        }
+        label { color: #f8fafc; font-weight: 500; }
+        .modal-content {
+            background: #1e293b !important;
+            color: #f8fafc !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+        .modal-header { border-bottom: 1px solid rgba(255,255,255,0.1) !important; }
+        .btn { border-radius: 10px; transition: 0.2s ease; }
+        .btn:hover { transform: translateY(-1px); }
+        .page-link {
+            background-color: #1e293b !important;
+            color: #60a5fa !important;
+            border-color: rgba(255,255,255,0.1) !important;
+        }
+        .page-item.active .page-link {
+            background-color: #3b82f6 !important;
+            border-color: #3b82f6 !important;
+            color: #fff !important;
+        }
+        footer { color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.08) !important; }
+        .progress { background-color: #0f172a !important; }
+        .nav-link-side {
+            color: #cbd5e1 !important;
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .nav-link-side:hover { background: rgba(59,130,246,0.2); color: #fff !important; }
+        hr { border-color: rgba(255,255,255,0.1); }
+        .badge { border-radius: 999px; }
     </style>
 </head>
 <body>
@@ -27,8 +96,16 @@
         </div>
     </nav>
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
     <!-- Konten utama SPA -->
     <main class="container-fluid px-4 mt-4 spa-container" id="app-content"></main>
+
+    <!-- Footer -->
+    <footer class="text-center text-muted py-3 mt-4 border-top small">
+        Smart City Portal &copy; 2026 — PIE 1416 Teknologi Rekayasa Internet
+    </footer>
 
     <!-- Modal Form Laporan -->
     <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
@@ -44,23 +121,27 @@
                     <form id="reportForm">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Judul</label>
-                            <input type="text" id="fieldTitle" class="form-control" placeholder="Judul laporan" required>
+                            <input type="text" id="fieldTitle" class="form-control"
+                                placeholder="Judul laporan" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Kategori</label>
-                            <input type="text" id="fieldCategory" class="form-control" placeholder="Contoh: Jalan, Sampah, dll">
+                            <input type="text" id="fieldCategory" class="form-control"
+                                placeholder="Contoh: Jalan, Sampah, Banjir">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Deskripsi</label>
-                            <textarea id="fieldDescription" class="form-control" rows="3" placeholder="Jelaskan masalah yang terjadi"></textarea>
+                            <textarea id="fieldDescription" class="form-control" rows="3"
+                                placeholder="Jelaskan masalah yang terjadi secara detail"></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Lokasi</label>
-                            <input type="text" id="fieldLocation" class="form-control" placeholder="Alamat/lokasi kejadian">
+                            <input type="text" id="fieldLocation" class="form-control"
+                                placeholder="Alamat atau nama lokasi kejadian">
                         </div>
                         <div class="d-flex justify-content-end mt-4 gap-2">
                             <button type="button" class="btn btn-outline-secondary fw-bold px-4" id="btnDraft">
-                                Simpan Draft
+                                <i class="bi bi-save me-1"></i>Simpan Draft
                             </button>
                             <button type="button" class="btn btn-primary fw-bold px-4" id="btnSubmit">
                                 Ajukan <i class="bi bi-send-fill ms-1"></i>
@@ -72,7 +153,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS (wajib untuk modal) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
