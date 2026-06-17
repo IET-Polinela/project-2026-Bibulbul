@@ -41,14 +41,17 @@ INSTALLED_APPS = [
     'main_app',
     'dashboard_24782006',
     'rest_framework',
+    'drf_spectacular',
+    'django_scalar',
     'rest_framework_simplejwt',
-    'corsheaders', 
+    'corsheaders',
     'usermanagement_24782006',
     'about',
     'contacts',
 ]
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer'
@@ -147,3 +150,10 @@ STATIC_URL = 'static/'
 
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True  # Mengizinkan semua domain untuk mengakses API
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Smart City Portal API',
+    'DESCRIPTION': 'Dokumentasi REST API resmi untuk Portal Pelaporan Laporan Warga',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

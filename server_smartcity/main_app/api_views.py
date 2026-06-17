@@ -1,4 +1,5 @@
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions
 from rest_framework.pagination import PageNumberPagination
 from .models import Report
@@ -14,6 +15,10 @@ class ReportPagination(PageNumberPagination):
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
     pagination_class = ReportPagination
+
+    @extend_schema(exclude=True)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
@@ -46,7 +51,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return [permissions.IsAuthenticated(), IsCitizenOnly()]
         if self.action in ['update', 'partial_update']:
-            if self.request.user.is_admin:
+            if self.request.user.is_authenticated and self.request.user.is_admin:
                 return [permissions.IsAuthenticated(), IsAdminStatusOnly()]
             return [permissions.IsAuthenticated(), IsOwnerAndDraftOrReadOnly()]
         if self.action == 'destroy':
