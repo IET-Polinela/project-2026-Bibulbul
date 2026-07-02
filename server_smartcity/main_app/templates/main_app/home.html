@@ -1,18 +1,970 @@
 {% extends 'base.html' %}
+{% block title %}Beranda — Bogor SmartCity{% endblock %}
 
-{% block title %}Home{% endblock %}
+{% block extra_css %}
+<style>
+    .hero-section {
+        position: relative;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 82% 18%, rgba(6,182,212,0.16), transparent 28%),
+            linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(8,145,178,0.13) 50%, transparent 100%);
+        border: 1px solid rgba(96,165,250,0.18);
+        border-radius: 20px;
+        padding: 3.5rem 3rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 340px;
+        height: 340px;
+        background: radial-gradient(circle, rgba(6,182,212,0.18) 0%, transparent 68%);
+        pointer-events: none;
+    }
+
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(96,165,250,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(96,165,250,0.04) 1px, transparent 1px);
+        background-size: 32px 32px;
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(6,182,212,0.12);
+        border: 1px solid rgba(6,182,212,0.3);
+        color: #67e8f9;
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        padding: 0.28rem 0.82rem;
+        border-radius: 999px;
+        margin-bottom: 1.2rem;
+    }
+
+    .hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(1.9rem, 5vw, 2.9rem);
+        font-weight: 800;
+        line-height: 1.18;
+        letter-spacing: -0.5px;
+        margin-bottom: 1.1rem;
+        background: linear-gradient(100deg, #e2e8f0 25%, #60a5fa 55%, #22d3ee 80%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer-title 7s linear infinite;
+    }
+
+    @keyframes shimmer-title {
+        0% {
+            background-position: 0% center;
+        }
+
+        100% {
+            background-position: 200% center;
+        }
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        color: #94a3b8;
+        max-width: 540px;
+        line-height: 1.75;
+        margin-bottom: 2rem;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-hero-primary {
+        background: linear-gradient(135deg, #2563eb, #0891b2);
+        color: #fff;
+        border: none;
+        padding: 0.7rem 1.55rem;
+        font-size: 0.915rem;
+        font-weight: 700;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 18px rgba(37,99,235,0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-hero-primary:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(6,182,212,0.45);
+        filter: brightness(1.06);
+    }
+
+    .btn-hero-secondary {
+        background: rgba(96,165,250,0.1);
+        color: #93c5fd;
+        border: 1.5px solid rgba(96,165,250,0.3);
+        padding: 0.7rem 1.35rem;
+        font-size: 0.915rem;
+        font-weight: 600;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.2s ease, background 0.2s ease;
+        text-decoration: none;
+    }
+
+    .btn-hero-secondary:hover {
+        color: #e0f2fe;
+        transform: translateY(-2px);
+        background: rgba(96,165,250,0.18);
+    }
+
+    /* HERO VISUAL — Tugu Kujang + Mega Mendung */
+    .hero-visual-area {
+        position: relative;
+        min-height: 380px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        isolation: isolate;
+    }
+
+    .mega-mendung {
+        position: absolute;
+        width: 390px;
+        height: 245px;
+        right: -15px;
+        top: 18px;
+        opacity: 0.55;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .mega-cloud {
+        position: absolute;
+        border: 2px solid rgba(96,165,250,0.13);
+        border-left: none;
+        border-bottom: none;
+        border-radius: 999px 999px 0 0;
+        filter: drop-shadow(0 0 10px rgba(6,182,212,0.08));
+    }
+
+    .mega-cloud.c1 {
+        width: 240px;
+        height: 90px;
+        top: 28px;
+        right: 12px;
+        transform: rotate(-4deg);
+    }
+
+    .mega-cloud.c2 {
+        width: 300px;
+        height: 118px;
+        top: 76px;
+        right: 46px;
+        border-color: rgba(6,182,212,0.12);
+        transform: rotate(-3deg);
+    }
+
+    .mega-cloud.c3 {
+        width: 210px;
+        height: 82px;
+        top: 146px;
+        right: 0;
+        border-color: rgba(96,165,250,0.10);
+        transform: rotate(-5deg);
+    }
+
+    .kujang-orb {
+        position: relative;
+        width: 252px;
+        height: 252px;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 50% 50%, rgba(6,182,212,0.26), transparent 42%),
+            radial-gradient(circle at 50% 50%, rgba(37,99,235,0.20), transparent 68%);
+        border: 1px solid rgba(96,165,250,0.14);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow:
+            0 0 70px rgba(6,182,212,0.14),
+            inset 0 0 40px rgba(96,165,250,0.06);
+        animation: orbPulse 4s ease-in-out infinite;
+        z-index: 2;
+    }
+
+    .kujang-orb::before,
+    .kujang-orb::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        border: 1px solid rgba(96,165,250,0.12);
+        pointer-events: none;
+    }
+
+    .kujang-orb::before {
+        inset: -34px;
+    }
+
+    .kujang-orb::after {
+        inset: 34px;
+        border-color: rgba(34,211,238,0.16);
+    }
+
+    .kujang-emblem {
+        position: relative;
+        z-index: 3;
+        width: 132px;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: floatKujang 5s ease-in-out infinite;
+        filter: drop-shadow(0 18px 32px rgba(6,182,212,0.28));
+    }
+
+    .kujang-svg {
+        width: 132px;
+        height: 150px;
+        overflow: visible;
+    }
+
+    .kujang-glow {
+        position: absolute;
+        width: 96px;
+        height: 128px;
+        border-radius: 45%;
+        background: rgba(6,182,212,0.12);
+        filter: blur(18px);
+        z-index: -1;
+    }
+
+    .smart-node {
+        position: absolute;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: #22d3ee;
+        box-shadow: 0 0 18px rgba(34,211,238,0.9);
+        z-index: 4;
+    }
+
+    .smart-node.node-1 {
+        top: 92px;
+        left: 105px;
+    }
+
+    .smart-node.node-2 {
+        right: 100px;
+        top: 142px;
+    }
+
+    .smart-node.node-3 {
+        bottom: 105px;
+        left: 145px;
+    }
+
+    .smart-line {
+        position: absolute;
+        width: 220px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(34,211,238,0.45), transparent);
+        z-index: 1;
+        opacity: 0.7;
+    }
+
+    .smart-line.line-1 {
+        top: 122px;
+        transform: rotate(-18deg);
+    }
+
+    .smart-line.line-2 {
+        bottom: 128px;
+        transform: rotate(22deg);
+    }
+
+    .floating-card {
+        position: absolute;
+        z-index: 5;
+        min-width: 145px;
+        padding: 0.82rem 0.95rem;
+        border-radius: 16px;
+        background: rgba(17,29,53,0.86);
+        border: 1px solid rgba(96,165,250,0.18);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 14px 45px rgba(0,0,0,0.25);
+        animation: floatCard 4.5s ease-in-out infinite;
+    }
+
+    .floating-card.top-left {
+        top: 18px;
+        left: 8px;
+        animation-delay: 0.2s;
+    }
+
+    .floating-card.top-right {
+        top: 54px;
+        right: 0;
+        animation-delay: 0.6s;
+    }
+
+    .floating-card.bottom-left {
+        bottom: 46px;
+        left: 0;
+        animation-delay: 1s;
+    }
+
+    .floating-card.bottom-right {
+        bottom: 16px;
+        right: 24px;
+        animation-delay: 1.4s;
+    }
+
+    .floating-card .mini-label {
+        color: var(--muted);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        margin-bottom: 0.1rem;
+    }
+
+    .floating-card .mini-value {
+        color: var(--white);
+        font-family: var(--font-display);
+        font-size: 1.02rem;
+        font-weight: 800;
+        margin-bottom: 0;
+        line-height: 1.2;
+    }
+
+    .floating-card .mini-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 10px;
+        background: rgba(96,165,250,0.12);
+        border: 1px solid rgba(96,165,250,0.18);
+        color: #67e8f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    @keyframes orbPulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow:
+                0 0 70px rgba(6,182,212,0.14),
+                inset 0 0 40px rgba(96,165,250,0.06);
+        }
+
+        50% {
+            transform: scale(1.025);
+            box-shadow:
+                0 0 90px rgba(6,182,212,0.24),
+                inset 0 0 55px rgba(96,165,250,0.10);
+        }
+    }
+
+    @keyframes floatKujang {
+        0%, 100% {
+            transform: translateY(0) scale(1);
+        }
+
+        50% {
+            transform: translateY(-9px) scale(1.025);
+        }
+    }
+
+    @keyframes floatCard {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-9px);
+        }
+    }
+
+    /* STATS */
+    .stats-strip {
+        background: rgba(17,29,53,0.9);
+        border: 1px solid rgba(96,165,250,0.1);
+        border-radius: 16px;
+        padding: 1.4rem 2rem;
+        margin-bottom: 2.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.2rem;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .stat-item {
+        text-align: center;
+        flex: 1 1 120px;
+    }
+
+    .stat-number {
+        font-family: var(--font-display);
+        font-size: 1.9rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #60a5fa, #22d3ee);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.1;
+    }
+
+    .stat-label {
+        font-size: 0.74rem;
+        color: #475569;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        margin-top: 2px;
+        text-transform: uppercase;
+    }
+
+    .stat-divider {
+        width: 1px;
+        height: 40px;
+        background: rgba(96,165,250,0.12);
+        flex-shrink: 0;
+    }
+
+    /* FEATURES */
+    .feature-card {
+        padding: 1.6rem;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        right: -30px;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .feature-card:hover::after {
+        opacity: 1;
+    }
+
+    .fc-1::after { background: radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%); }
+    .fc-2::after { background: radial-gradient(circle, rgba(6,182,212,0.15), transparent 70%); }
+    .fc-3::after { background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%); }
+    .fc-4::after { background: radial-gradient(circle, rgba(20,184,166,0.15), transparent 70%); }
+    .fc-5::after { background: radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%); }
+    .fc-6::after { background: radial-gradient(circle, rgba(239,68,68,0.15), transparent 70%); }
+
+    .feature-icon-wrap {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        transition: transform 0.25s ease;
+    }
+
+    .feature-card:hover .feature-icon-wrap {
+        transform: scale(1.12) rotate(-4deg);
+    }
+
+    .fi-blue   { background: rgba(59,130,246,0.14); color: #60a5fa; border: 1px solid rgba(59,130,246,0.25); }
+    .fi-cyan   { background: rgba(6,182,212,0.14);  color: #22d3ee; border: 1px solid rgba(6,182,212,0.25); }
+    .fi-indigo { background: rgba(99,102,241,0.14); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.25); }
+    .fi-teal   { background: rgba(20,184,166,0.14); color: #5eead4; border: 1px solid rgba(20,184,166,0.25); }
+    .fi-amber  { background: rgba(245,158,11,0.14); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+    .fi-rose   { background: rgba(239,68,68,0.14);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+
+    .feature-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 0.98rem;
+        color: #e2e8f0;
+        margin-bottom: 0.45rem;
+    }
+
+    .feature-desc {
+        font-size: 0.845rem;
+        color: #64748b;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    /* CTA */
+    .cta-banner {
+        background: linear-gradient(135deg, rgba(37,99,235,0.22) 0%, rgba(8,145,178,0.16) 100%);
+        border: 1px solid rgba(96,165,250,0.2);
+        border-radius: 20px;
+        padding: 2.4rem 2.8rem;
+        margin-top: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-banner::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(96,165,250,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(96,165,250,0.03) 1px, transparent 1px);
+        background-size: 28px 28px;
+        pointer-events: none;
+    }
+
+    .cta-banner-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #e2e8f0;
+        margin-bottom: 0.45rem;
+    }
+
+    .cta-sub {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+    }
+
+    /* LIGHT MODE */
+    html[data-theme="light"] .hero-section {
+        background:
+            radial-gradient(circle at 82% 18%, rgba(6,182,212,0.12), transparent 28%),
+            linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(8,145,178,0.09) 50%, #ffffff 100%);
+        border-color: rgba(37,99,235,0.14);
+    }
+
+    html[data-theme="light"] .hero-title {
+        background: linear-gradient(100deg, #0f172a 25%, #2563eb 55%, #0891b2 80%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    html[data-theme="light"] .hero-subtitle,
+    html[data-theme="light"] .feature-desc,
+    html[data-theme="light"] .cta-sub {
+        color: #64748b;
+    }
+
+    html[data-theme="light"] .btn-hero-secondary {
+        background: rgba(37,99,235,0.08);
+        color: #2563eb;
+        border-color: rgba(37,99,235,0.22);
+    }
+
+    html[data-theme="light"] .btn-hero-secondary:hover {
+        color: #1d4ed8;
+        background: rgba(37,99,235,0.13);
+    }
+
+    html[data-theme="light"] .kujang-orb {
+        background:
+            radial-gradient(circle at 50% 50%, rgba(6,182,212,0.18), transparent 42%),
+            radial-gradient(circle at 50% 50%, rgba(37,99,235,0.14), transparent 68%);
+        border-color: rgba(37,99,235,0.12);
+    }
+
+    html[data-theme="light"] .mega-cloud {
+        border-color: rgba(37,99,235,0.13);
+    }
+
+    html[data-theme="light"] .floating-card {
+        background: rgba(255,255,255,0.88);
+        border-color: rgba(37,99,235,0.14);
+        box-shadow: 0 14px 45px rgba(15,23,42,0.10);
+    }
+
+    html[data-theme="light"] .floating-card .mini-value {
+        color: #0f172a;
+    }
+
+    html[data-theme="light"] .stats-strip {
+        background: rgba(255,255,255,0.88);
+        border-color: rgba(37,99,235,0.12);
+    }
+
+    html[data-theme="light"] .feature-title,
+    html[data-theme="light"] .cta-title {
+        color: #0f172a;
+    }
+
+    html[data-theme="light"] .cta-banner {
+        background: linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(8,145,178,0.09) 100%);
+        border-color: rgba(37,99,235,0.14);
+    }
+
+    @media (max-width: 991.98px) {
+        .hero-section {
+            padding: 2.5rem 1.5rem;
+        }
+
+        .hero-visual-area {
+            min-height: 320px;
+            margin-top: 2rem;
+        }
+
+        .floating-card {
+            min-width: 135px;
+            padding: 0.75rem 0.85rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-section {
+            padding: 2rem 1.2rem;
+        }
+
+        .hero-actions {
+            flex-direction: column;
+        }
+
+        .btn-hero-primary,
+        .btn-hero-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .stat-divider {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item active" aria-current="page">Home</li>
-    </ol>
-</nav>
+<!-- HERO -->
+<div class="hero-section">
+    <div class="row align-items-center g-4 hero-content">
+        <div class="col-lg-7">
+            <div class="hero-eyebrow">
+                <i class="bi bi-broadcast-pin"></i> Platform Digital Warga Kota
+            </div>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-4">
-        <h1 class="mb-3">Selamat Datang di Bogor SmartCity</h1>
-        <p class="text-light mb-0">Sistem laporan masyarakat dengan tampilan yang konsisten dan responsif.</p>
+            <h1 class="hero-title">
+                Kota yang Lebih Baik<br>
+                Dimulai dari Aspirasi Warganya
+            </h1>
+
+            <p class="hero-subtitle">
+                Bogor SmartCity hadir sebagai jembatan antara warga dan pemerintah daerah.
+                Laporan masalah kota, pantau progres penanganan, dan wujudkan Bogor yang lebih layak huni bersama-sama.
+            </p>
+
+            <div class="hero-actions">
+                <a href="{% url 'report_list' %}" class="btn-hero-primary">
+                    <i class="bi bi-megaphone-fill"></i> Lihat Laporan
+                </a>
+
+                {% if not user.is_authenticated %}
+                <a href="{% url 'login' %}" class="btn-hero-secondary">
+                    <i class="bi bi-bar-chart-line"></i> Masuk ke Dashboard
+                </a>
+                {% else %}
+                <a href="{% url 'dashboard_24782006:dashboard' %}" class="btn-hero-secondary">
+                    <i class="bi bi-bar-chart-line"></i> Lihat Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+            <div class="hero-visual-area">
+                <div class="mega-mendung">
+                    <span class="mega-cloud c1"></span>
+                    <span class="mega-cloud c2"></span>
+                    <span class="mega-cloud c3"></span>
+                </div>
+
+                <div class="smart-line line-1"></div>
+                <div class="smart-line line-2"></div>
+
+                <span class="smart-node node-1"></span>
+                <span class="smart-node node-2"></span>
+                <span class="smart-node node-3"></span>
+
+                <div class="kujang-orb">
+                    <div class="kujang-emblem">
+                        <div class="kujang-glow"></div>
+
+                        <svg class="kujang-svg" viewBox="0 0 140 170" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Tugu Kujang">
+                            <defs>
+                                <linearGradient id="kujangGradient" x1="22" y1="10" x2="120" y2="155" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0" stop-color="#60A5FA"/>
+                                    <stop offset="0.52" stop-color="#06B6D4"/>
+                                    <stop offset="1" stop-color="#22D3EE"/>
+                                </linearGradient>
+
+                                <linearGradient id="kujangBaseGradient" x1="35" y1="116" x2="105" y2="166" gradientUnits="userSpaceOnUse">
+                                    <stop offset="0" stop-color="#2563EB"/>
+                                    <stop offset="1" stop-color="#0891B2"/>
+                                </linearGradient>
+                            </defs>
+
+                            <path d="M74 10C92 23 101 44 96 66C92 85 78 96 68 112C58 96 44 84 42 64C39 40 53 22 74 10Z"
+                                  fill="url(#kujangGradient)"
+                                  opacity="0.96"/>
+
+                            <path d="M75 27C85 40 86 55 81 68C77 80 69 88 64 100C57 86 55 72 60 58C63 47 67 37 75 27Z"
+                                  fill="#07142D"
+                                  opacity="0.42"/>
+
+                            <path d="M65 77C74 83 83 86 94 85C87 95 77 101 66 105C64 96 64 87 65 77Z"
+                                  fill="#E0F2FE"
+                                  opacity="0.18"/>
+
+                            <path d="M58 107H82L88 130H52L58 107Z"
+                                  fill="url(#kujangBaseGradient)"/>
+
+                            <path d="M43 130H97L105 151H35L43 130Z"
+                                  fill="url(#kujangBaseGradient)"
+                                  opacity="0.92"/>
+
+                            <path d="M28 151H112L119 164H21L28 151Z"
+                                  fill="#0F766E"
+                                  opacity="0.95"/>
+
+                            <path d="M74 10C92 23 101 44 96 66C92 85 78 96 68 112C58 96 44 84 42 64C39 40 53 22 74 10Z"
+                                  stroke="#BAE6FD"
+                                  stroke-opacity="0.55"
+                                  stroke-width="2"/>
+
+                            <path d="M43 130H97L105 151H35L43 130Z"
+                                  stroke="#BAE6FD"
+                                  stroke-opacity="0.30"
+                                  stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="floating-card top-left">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="mini-icon">
+                            <i class="bi bi-megaphone-fill"></i>
+                        </div>
+                        <div>
+                            <div class="mini-label">Laporan</div>
+                            <p class="mini-value">125+</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-card top-right">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="mini-icon">
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <div>
+                            <div class="mini-label">Monitoring</div>
+                            <p class="mini-value">Real-time</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-card bottom-left">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="mini-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div>
+                            <div class="mini-label">Verifikasi</div>
+                            <p class="mini-value">Admin</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="floating-card bottom-right">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="mini-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div>
+                            <div class="mini-label">Resolved</div>
+                            <p class="mini-value">89%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+    <div class="stat-item">
+        <div class="stat-number">5+</div>
+        <div class="stat-label">Kategori Laporan</div>
+    </div>
+
+    <div class="stat-divider"></div>
+
+    <div class="stat-item">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Transparan</div>
+    </div>
+
+    <div class="stat-divider"></div>
+
+    <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Tersedia Online</div>
+    </div>
+
+    <div class="stat-divider"></div>
+
+    <div class="stat-item">
+        <div class="stat-number">Real-time</div>
+        <div class="stat-label">Update Status</div>
+    </div>
+</div>
+
+<!-- FITUR -->
+<div class="section-eyebrow">Fitur Utama</div>
+<h2 class="section-title">Semua yang Kamu Butuhkan dalam Satu Portal</h2>
+
+<div class="row g-3 stagger">
+    <div class="col-md-6 col-xl-4">
+        <div class="card feature-card fc-1">
+            <div class="feature-icon-wrap fi-blue">
+                <i class="bi bi-megaphone-fill"></i>
+            </div>
+            <div class="feature-title">Lapor Masalah Kota</div>
+            <p class="feature-desc">
+                Sampaikan keluhan infrastruktur, kebersihan, keamanan, atau masalah lain langsung ke sistem dengan mudah.
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card feature-card fc-2">
+            <div class="feature-icon-wrap fi-cyan">
+                <i class="bi bi-radar"></i>
+            </div>
+            <div class="feature-title">Pantau Status Real-time</div>
+            <p class="feature-desc">
+                Ikuti perkembangan laporan dari Reported → Verified → In Progress → Resolved secara transparan.
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card feature-card fc-3">
+            <div class="feature-icon-wrap fi-indigo">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="feature-title">Terverifikasi & Aman</div>
+            <p class="feature-desc">
+                Setiap laporan diverifikasi oleh admin dan diteruskan ke dinas berwenang. Data Anda terlindungi.
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card feature-card fc-4">
+            <div class="feature-icon-wrap fi-teal">
+                <i class="bi bi-search"></i>
+            </div>
+            <div class="feature-title">Cari & Filter Laporan</div>
+            <p class="feature-desc">
+                Temukan laporan berdasarkan judul, kategori, lokasi, atau status dengan pencarian cepat berbasis API.
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card feature-card fc-5">
+            <div class="feature-icon-wrap fi-amber">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="feature-title">Partisipasi Warga</div>
+            <p class="feature-desc">
+                Seluruh warga bisa melihat laporan publik, mendorong transparansi dan akuntabilitas tata kelola kota.
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4">
+        <div class="card feature-card fc-6">
+            <div class="feature-icon-wrap fi-rose">
+                <i class="bi bi-bell-fill"></i>
+            </div>
+            <div class="feature-title">Manajemen Admin</div>
+            <p class="feature-desc">
+                Admin dapat memverifikasi, memproses, dan menyelesaikan laporan dari dashboard yang terintegrasi.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-banner">
+    <div class="row align-items-center g-3 cta-banner-content">
+        <div class="col-md-8">
+            <h3 class="cta-title">Punya masalah di sekitarmu?</h3>
+            <p class="cta-sub">
+                Jangan diam. Laporkan sekarang dan bantu Bogor menjadi kota yang lebih baik untuk semua.
+            </p>
+        </div>
+
+        <div class="col-md-4 text-md-end">
+            {% if user.is_authenticated and not user.is_admin %}
+                <a href="{% url 'report_create' %}" class="btn-hero-primary">
+                    <i class="bi bi-plus-circle-fill"></i> Buat Laporan Baru
+                </a>
+            {% elif user.is_authenticated and user.is_admin %}
+                <a href="{% url 'report_list' %}" class="btn-hero-primary">
+                    <i class="bi bi-list-check"></i> Kelola Laporan
+                </a>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn-hero-primary">
+                    <i class="bi bi-person-plus-fill"></i> Daftar Sekarang
+                </a>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

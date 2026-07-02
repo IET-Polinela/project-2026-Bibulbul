@@ -1,31 +1,44 @@
 {% extends 'base.html' %}
-
-{% block title %}Hapus Laporan{% endblock %}
+{% block title %}Hapus Laporan — Bogor SmartCity{% endblock %}
 
 {% block content %}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'report_list' %}">Reports</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Hapus</li>
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Beranda</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'report_list' %}">Laporan</a></li>
+        <li class="breadcrumb-item active">Hapus</li>
     </ol>
 </nav>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body">
-        <h2 class="mb-3">Hapus Laporan</h2>
-        <p class="mb-4">
-            Apakah kamu yakin ingin menghapus laporan
-            <strong>"{{ object.title }}"</strong>?
-        </p>
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card" style="border-color:rgba(220,38,38,0.25) !important;">
+            <div class="card-body" style="padding:2rem 2.2rem;text-align:center;">
 
-        <form method="post">
-            {% csrf_token %}
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-danger">Ya, hapus</button>
-                <a href="{% url 'report_list' %}" class="btn btn-secondary">Batal</a>
+                <div style="width:64px;height:64px;border-radius:50%;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.6rem;color:#fca5a5;">
+                    <i class="bi bi-trash"></i>
+                </div>
+
+                <h3 style="font-family:var(--font-display);font-weight:800;color:#e2e8f0;margin-bottom:0.75rem;">Hapus Laporan?</h3>
+                <p style="color:#94a3b8;font-size:0.9rem;margin-bottom:0.5rem;">Kamu akan menghapus laporan:</p>
+                <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:10px;padding:12px 16px;margin-bottom:1.75rem;">
+                    <strong style="color:#fca5a5;">{{ object.title }}</strong>
+                </div>
+                <p style="color:#64748b;font-size:0.82rem;margin-bottom:2rem;">Tindakan ini tidak dapat dibatalkan. Data laporan akan dihapus secara permanen.</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i>Ya, Hapus
+                        </button>
+                        <a href="{% url 'report_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Batal
+                        </a>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -1,14 +1,33 @@
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 from django.db.models import Count
+from django.shortcuts import redirect
+from django.contrib import messages
 from main_app.models import Report
 
 
-class DashboardView(TemplateView):
+class AdminDashboardAccessMixin:
+    """
+    Hanya admin (is_admin=True) yang boleh mengakses Dashboard.
+    Warga biasa atau pengguna yang belum login akan di-redirect.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, 'Silakan login terlebih dahulu.')
+            return redirect('login')
+
+        if not getattr(request.user, 'is_admin', False):
+            messages.error(request, 'Akses ditolak: hanya admin yang dapat mengakses dashboard.')
+            return redirect('home')
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class DashboardView(AdminDashboardAccessMixin, TemplateView):
     template_name = 'dashboard_24782006/dashboard.html'
 
 
-class DashboardDataView(View):
+class DashboardDataView(AdminDashboardAccessMixin, View):
     def get(self, request, *args, **kwargs):
         status_data = (
             Report.objects

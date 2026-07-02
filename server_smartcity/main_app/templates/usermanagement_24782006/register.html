@@ -1,45 +1,97 @@
 {% extends 'base.html' %}
+{% block title %}Daftar Akun — Bogor SmartCity{% endblock %}
 
-{% block title %}Register{% endblock %}
+{% block extra_css %}
+<style>
+    .auth-wrap { min-height: calc(100vh - 180px); display: flex; align-items: center; justify-content: center; padding: 2rem 0; }
+    .auth-card { width: 100%; max-width: 460px; }
+    .auth-logo {
+        width: 56px; height: 56px; border-radius: 16px;
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: white; margin: 0 auto 1.5rem;
+        box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+    }
+    .auth-title { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: #e2e8f0; text-align: center; margin-bottom: 0.4rem; }
+    .auth-sub   { color: #475569; font-size: 0.875rem; text-align: center; margin-bottom: 2rem; }
+    .auth-footer-link { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: #475569; }
+    .auth-footer-link a { color: #60a5fa; text-decoration: none; font-weight: 600; }
+    .auth-footer-link a:hover { color: #93c5fd; }
+    .input-icon-wrap { position: relative; }
+    .input-icon-wrap i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 0.95rem; pointer-events: none; }
+    .input-icon-wrap .form-control { padding-left: 38px !important; }
+    /* password fields are textarea-like, adjust icon to top */
+    .input-icon-wrap.top-icon i { top: 14px; transform: none; }
+    .field-error { color: #fca5a5; font-size: 0.8rem; margin-top: 5px; }
+</style>
+{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Register</li>
-    </ol>
-</nav>
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="card">
+            <div class="card-body" style="padding:2.5rem 2.2rem;">
+                <div class="auth-logo"><i class="bi bi-person-plus-fill"></i></div>
+                <h2 class="auth-title">Buat Akun Baru</h2>
+                <p class="auth-sub">Daftar sebagai warga Bogor SmartCity</p>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-4">
-        <h2 class="mb-4">Registrasi Citizen</h2>
+                <form method="post" onsubmit="return handleSubmitLoading(this)">
+                    {% csrf_token %}
 
-        <form method="post">
-            {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-person"></i>
+                            {{ form.username }}
+                        </div>
+                        {% if form.username.errors %}
+                            {% for error in form.username.errors %}<div class="field-error"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>{% endfor %}
+                        {% endif %}
+                    </div>
 
-            <div class="mb-3">
-                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                {{ form.username }}
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-envelope"></i>
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}
+                            {% for error in form.email.errors %}<div class="field-error"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>{% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-lock"></i>
+                            {{ form.password1 }}
+                        </div>
+                        {% if form.password1.errors %}
+                            {% for error in form.password1.errors %}<div class="field-error"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>{% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">Konfirmasi Password</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-lock-fill"></i>
+                            {{ form.password2 }}
+                        </div>
+                        {% if form.password2.errors %}
+                            {% for error in form.password2.errors %}<div class="field-error"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>{% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" style="padding:0.7rem;">
+                        <i class="bi bi-person-check me-2"></i>Buat Akun
+                    </button>
+                </form>
+
+                <div class="auth-footer-link">
+                    Sudah punya akun? <a href="{% url 'login' %}">Masuk di sini</a>
+                </div>
             </div>
-
-            <div class="mb-3">
-                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                {{ form.email }}
-            </div>
-
-            <div class="mb-3">
-                <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
-                {{ form.password1 }}
-            </div>
-
-            <div class="mb-3">
-                <label for="{{ form.password2.id_for_label }}" class="form-label">Konfirmasi Password</label>
-                {{ form.password2 }}
-            </div>
-
-            <button type="submit" class="btn btn-primary">Register</button>
-            <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}

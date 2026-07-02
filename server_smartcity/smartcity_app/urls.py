@@ -16,7 +16,7 @@ urlpatterns = [
     path('api/docs/scalar/', scalar_viewer, name='scalar-ui'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/register/', RegisterView.as_view(), name='register'),
+    path('api/register/', RegisterView.as_view(), name='api_register'),
     path('about/', include('about.urls')),
     path('contacts/', include('contacts.urls')),
 ]

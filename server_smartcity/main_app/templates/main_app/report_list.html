@@ -1,38 +1,184 @@
 {% extends 'base.html' %}
-
-{% block title %}Daftar Laporan{% endblock %}
+{% block title %}Daftar Laporan — Bogor SmartCity{% endblock %}
 
 {% block extra_css %}
 <style>
-    .report-dark-table {
-        background-color: #1e293b;
-        color: #f8fafc;
-        border-color: rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
+    .search-card {
+        background: rgba(13,23,51,0.8);
+        border: 1px solid rgba(96,165,250,0.12) !important;
+    }
+
+    .report-table-wrap {
+        border-radius: var(--radius-card);
         overflow: hidden;
+        border: 1px solid rgba(96,165,250,0.1);
     }
-    .report-dark-table thead {
-        background: linear-gradient(90deg, #0b132b, #1e3a8a);
-        color: #f8fafc;
+
+    .action-btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
     }
-    .report-dark-table th {
-        background: transparent !important;
-        color: #f8fafc;
-        border-color: rgba(255, 255, 255, 0.12);
-        padding: 14px 12px;
+
+    .custom-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.62);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        padding: 1rem;
     }
-    .report-dark-table td {
-        background-color: #1e293b !important;
-        color: #f8fafc !important;
-        border-color: rgba(255, 255, 255, 0.10);
-        padding: 14px 12px;
+
+    .custom-modal-overlay.show {
+        display: flex;
+        animation: modalOverlayIn 0.22s ease forwards;
     }
-    .report-dark-table tbody tr:nth-child(even) td {
-        background-color: #172033 !important;
+
+    .custom-modal-overlay.is-closing {
+        display: flex;
+        animation: modalOverlayOut 0.22s ease forwards;
     }
-    .report-dark-table tbody tr:hover td {
-        background-color: #273449 !important;
-        color: #ffffff !important;
+
+    .custom-modal-box {
+        width: min(720px, 100%);
+        max-height: 90vh;
+        overflow-y: auto;
+        background: #111d35;
+        border: 1px solid rgba(96,165,250,0.18);
+        border-radius: 18px;
+        box-shadow: 0 24px 90px rgba(0,0,0,0.65);
+        color: #f1f5f9;
+    }
+
+    .custom-modal-overlay.show .custom-modal-box {
+        animation: modalPop 0.22s ease forwards;
+    }
+
+    .custom-modal-overlay.is-closing .custom-modal-box {
+        animation: modalClose 0.22s ease forwards;
+    }
+
+    @keyframes modalOverlayIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes modalOverlayOut {
+        from {
+            opacity: 1;
+        }
+
+        to {
+            opacity: 0;
+        }
+    }
+
+    @keyframes modalPop {
+        from {
+            opacity: 0;
+            transform: translateY(18px) scale(0.96);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes modalClose {
+        from {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(16px) scale(0.96);
+        }
+    }
+
+    .custom-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.2rem 1.45rem;
+        border-bottom: 1px solid rgba(96,165,250,0.1);
+    }
+
+    .custom-modal-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .custom-modal-close {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 10px;
+        background: rgba(148,163,184,0.1);
+        color: #94a3b8;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .custom-modal-close:hover {
+        background: rgba(239,68,68,0.16);
+        color: #fca5a5;
+    }
+
+    .custom-modal-body {
+        padding: 1.5rem;
+    }
+
+    .custom-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid rgba(96,165,250,0.1);
+    }
+
+    .detail-info-box {
+        background: rgba(6,13,31,0.55);
+        border: 1px solid rgba(96,165,250,0.1);
+        border-radius: 10px;
+        padding: 12px 14px;
+        height: 100%;
+    }
+
+    .detail-label {
+        font-size: 0.72rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+        font-weight: 700;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        color: #e2e8f0;
+    }
+
+    body.custom-modal-open {
+        overflow: hidden;
     }
 </style>
 {% endblock %}
@@ -40,111 +186,211 @@
 {% block content %}
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Reports</li>
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Beranda</a></li>
+        <li class="breadcrumb-item active">Laporan</li>
     </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Daftar Laporan Bogor SmartCity</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <div class="section-eyebrow">Citizen Reports</div>
+        <h1 class="section-title mb-0">Daftar Laporan Warga</h1>
+    </div>
+
+    {% if user.is_authenticated and not user.is_admin %}
+    <a href="{% url 'report_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Buat Laporan
+    </a>
+    {% endif %}
 </div>
 
-<div class="card mb-4">
-    <div class="card-body">
-        <h5 class="mb-3">Search Laporan</h5>
-        <input type="text" id="searchInput" class="form-control"
-            placeholder="Cari laporan berdasarkan judul, kategori, lokasi, atau status...">
+<div class="card search-card mb-4">
+    <div class="card-body" style="padding: 1.1rem 1.4rem;">
+        <div class="input-group">
+            <span class="input-group-text" style="background:rgba(6,13,31,0.8);border:1px solid rgba(96,165,250,0.28);border-right:none;color:#60a5fa;">
+                <i class="bi bi-search"></i>
+            </span>
+
+            <input type="text"
+                   id="searchInput"
+                   class="form-control"
+                   placeholder="Cari berdasarkan judul, kategori, lokasi, atau status..."
+                   style="border-left:none;">
+        </div>
     </div>
 </div>
 
 {% if reports %}
-<div class="table-responsive">
-    <table class="table table-bordered table-hover shadow-sm report-dark-table">
-        <thead>
-            <tr>
-                <th>Judul</th>
-                <th>Kategori</th>
-                <th>Lokasi</th>
-                <th>Status</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="reportTableBody">
-            {% for report in reports %}
-            <tr>
-                <td>{{ report.title }}</td>
-                <td>{{ report.category }}</td>
-                <td>{{ report.location }}</td>
-                <td>
-                    {% if report.status == 'REPORTED' %}
-                        <span class="badge bg-secondary">Reported</span>
-                    {% elif report.status == 'VERIFIED' %}
-                        <span class="badge bg-primary">Verified</span>
-                    {% elif report.status == 'IN_PROGRESS' %}
-                        <span class="badge bg-warning text-dark">In Progress</span>
-                    {% elif report.status == 'RESOLVED' %}
-                        <span class="badge bg-success">Resolved</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="d-flex flex-wrap gap-2">
-                        <!-- Tombol Detail: selalu muncul -->
-                        <button type="button" class="btn btn-sm btn-secondary detail-btn"
-                            data-id="{{ report.id }}">
-                            Detail
-                        </button>
+<div class="report-table-wrap">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th><i class="bi bi-card-heading me-1"></i>Judul</th>
+                    <th><i class="bi bi-tag me-1"></i>Kategori</th>
+                    <th><i class="bi bi-geo-alt me-1"></i>Lokasi</th>
+                    <th><i class="bi bi-circle-half me-1"></i>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
 
-                        <!-- Tombol ubah status: hanya untuk non-DRAFT -->
+            <tbody id="reportTableBody">
+                {% for report in reports %}
+                <tr>
+                    <td>
+                        <span class="fw-semibold">{{ report.title }}</span>
+                    </td>
+
+                    <td>
+                        <span style="color:#94a3b8;font-size:0.87rem;">{{ report.category }}</span>
+                    </td>
+
+                    <td>
+                        <span style="color:#94a3b8;font-size:0.87rem;">
+                            <i class="bi bi-geo-alt-fill me-1" style="color:#475569;"></i>
+                            {{ report.location }}
+                        </span>
+                    </td>
+
+                    <td>
                         {% if report.status == 'REPORTED' %}
-                            <form method="post" action="{% url 'report_update_status' report.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="status" value="VERIFIED">
-                                <button type="submit" class="btn btn-sm btn-primary">Verifikasi</button>
-                            </form>
+                            <span class="badge badge-reported">● Reported</span>
                         {% elif report.status == 'VERIFIED' %}
-                            <form method="post" action="{% url 'report_update_status' report.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="status" value="IN_PROGRESS">
-                                <button type="submit" class="btn btn-sm btn-warning text-dark">Proses</button>
-                            </form>
+                            <span class="badge badge-verified">● Verified</span>
                         {% elif report.status == 'IN_PROGRESS' %}
-                            <form method="post" action="{% url 'report_update_status' report.pk %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="status" value="RESOLVED">
-                                <button type="submit" class="btn btn-sm btn-success">Selesaikan</button>
-                            </form>
+                            <span class="badge badge-in-progress">● In Progress</span>
+                        {% elif report.status == 'RESOLVED' %}
+                            <span class="badge badge-resolved">● Resolved</span>
+                        {% elif report.status == 'DRAFT' %}
+                            <span class="badge badge-draft">● Draft</span>
+                        {% else %}
+                            <span class="badge badge-draft">● {{ report.status }}</span>
                         {% endif %}
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </td>
+
+                    <td>
+                        <div class="action-btn-group">
+                            <button type="button"
+                                    class="btn btn-secondary btn-sm detail-btn"
+                                    data-id="{{ report.id }}">
+                                <i class="bi bi-eye me-1"></i>Detail
+                            </button>
+
+                            {% if user.is_authenticated and user.is_admin %}
+                                {% if report.status == 'REPORTED' %}
+                                    <form method="post" action="{% url 'report_update_status' report.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="VERIFIED">
+                                        <button type="submit"
+                                                class="btn btn-sm"
+                                                style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.35);color:#93c5fd;font-size:0.78rem;">
+                                            Verifikasi
+                                        </button>
+                                    </form>
+                                {% elif report.status == 'VERIFIED' %}
+                                    <form method="post" action="{% url 'report_update_status' report.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="IN_PROGRESS">
+                                        <button type="submit"
+                                                class="btn btn-sm"
+                                                style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fcd34d;font-size:0.78rem;">
+                                            Proses
+                                        </button>
+                                    </form>
+                                {% elif report.status == 'IN_PROGRESS' %}
+                                    <form method="post" action="{% url 'report_update_status' report.pk %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="RESOLVED">
+                                        <button type="submit"
+                                                class="btn btn-sm"
+                                                style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#86efac;font-size:0.78rem;">
+                                            Selesaikan
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% elif user.is_authenticated and not user.is_admin and report.status == 'DRAFT' %}
+                                <a href="{% url 'report_update' report.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a href="{% url 'report_delete' report.pk %}"
+                                   class="btn btn-sm"
+                                   style="background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.3);color:#fca5a5;">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% else %}
-<div class="empty-state shadow-sm">
-    <h4 class="mb-2">Belum ada laporan</h4>
-    <p class="text-muted">Belum ada laporan yang masuk.</p>
+<div class="empty-state">
+    <i class="bi bi-inbox" style="font-size:3.5rem;color:#334155;margin-bottom:1rem;"></i>
+    <h5 style="color:#64748b;font-family:var(--font-display);">Belum ada laporan</h5>
+    <p class="text-muted mb-0" style="font-size:0.88rem;">Belum ada laporan yang masuk saat ini.</p>
 </div>
 {% endif %}
 
-<!-- Modal Detail -->
-<div class="modal fade" id="reportDetailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title">Detail Laporan</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="custom-modal-overlay" id="customReportModal">
+    <div class="custom-modal-box" id="customReportModalBox">
+        <div class="custom-modal-header">
+            <h5 class="custom-modal-title">
+                <i class="bi bi-file-earmark-text" style="color:#60a5fa;"></i>
+                Detail Laporan
+            </h5>
+
+            <button type="button" class="custom-modal-close" id="customModalCloseBtn">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="custom-modal-body">
+            <h4 id="modalTitle"
+                class="mb-4"
+                style="font-family:var(--font-display);font-weight:700;color:#e2e8f0;">
+                Memuat detail...
+            </h4>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <div class="detail-info-box">
+                        <div class="detail-label">Kategori</div>
+                        <div id="modalCategory" class="detail-value">-</div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="detail-info-box">
+                        <div class="detail-label">Lokasi</div>
+                        <div id="modalLocation" class="detail-value">-</div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="detail-info-box">
+                        <div class="detail-label">Status</div>
+                        <div id="modalStatus">-</div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <h4 id="modalTitle" class="mb-3"></h4>
-                <p><strong>Kategori:</strong> <span id="modalCategory"></span></p>
-                <p><strong>Lokasi:</strong> <span id="modalLocation"></span></p>
-                <p><strong>Status:</strong> <span id="modalStatus"></span></p>
-                <hr>
-                <p><strong>Deskripsi:</strong></p>
-                <p id="modalDescription"></p>
+
+            <div class="detail-info-box">
+                <div class="detail-label">Deskripsi</div>
+                <p id="modalDescription"
+                   style="color:#cbd5e1;line-height:1.7;margin:0;font-size:0.92rem;">
+                    -
+                </p>
             </div>
+        </div>
+
+        <div class="custom-modal-footer">
+            <button type="button" class="btn btn-secondary" id="customModalFooterCloseBtn">
+                Tutup
+            </button>
         </div>
     </div>
 </div>
@@ -153,106 +399,294 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const searchInput      = document.getElementById('searchInput');
-    const reportTableBody  = document.getElementById('reportTableBody');
-    const reportDetailModal = new bootstrap.Modal(document.getElementById('reportDetailModal'));
+    const USER_IS_AUTHENTICATED = {% if user.is_authenticated %}true{% else %}false{% endif %};
+    const USER_IS_ADMIN = {% if user.is_authenticated and user.is_admin %}true{% else %}false{% endif %};
+    const CSRF_TOKEN = '{{ csrf_token }}';
 
-    let debounceTimer;
+    const searchInput = document.getElementById('searchInput');
+    const reportTableBody = document.getElementById('reportTableBody');
+
+    const customReportModal = document.getElementById('customReportModal');
+    const customReportModalBox = document.getElementById('customReportModalBox');
+    const customModalCloseBtn = document.getElementById('customModalCloseBtn');
+    const customModalFooterCloseBtn = document.getElementById('customModalFooterCloseBtn');
+
+    let debounceTimer = null;
+    let isModalClosing = false;
+
+    function openCustomModal() {
+        if (!customReportModal) return;
+
+        isModalClosing = false;
+        customReportModal.classList.remove('is-closing');
+        customReportModal.classList.add('show');
+        document.body.classList.add('custom-modal-open');
+    }
+
+    function closeCustomModal() {
+        if (!customReportModal || isModalClosing) return;
+
+        if (!customReportModal.classList.contains('show')) {
+            return;
+        }
+
+        isModalClosing = true;
+        customReportModal.classList.add('is-closing');
+
+        setTimeout(function () {
+            customReportModal.classList.remove('show');
+            customReportModal.classList.remove('is-closing');
+            document.body.classList.remove('custom-modal-open');
+            isModalClosing = false;
+        }, 220);
+    }
+
+    if (customModalCloseBtn) {
+        customModalCloseBtn.addEventListener('click', closeCustomModal);
+    }
+
+    if (customModalFooterCloseBtn) {
+        customModalFooterCloseBtn.addEventListener('click', closeCustomModal);
+    }
+
+    if (customReportModal) {
+        customReportModal.addEventListener('click', function (event) {
+            if (event.target === customReportModal) {
+                closeCustomModal();
+            }
+        });
+    }
+
+    if (customReportModalBox) {
+        customReportModalBox.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+    }
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            closeCustomModal();
+        }
+    });
+
+    function escapeHTML(value) {
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
 
     function getStatusBadge(status) {
         const map = {
-            'REPORTED':    '<span class="badge bg-secondary">Reported</span>',
-            'VERIFIED':    '<span class="badge bg-primary">Verified</span>',
-            'IN_PROGRESS': '<span class="badge bg-warning text-dark">In Progress</span>',
-            'RESOLVED':    '<span class="badge bg-success">Resolved</span>',
+            'REPORTED': '<span class="badge badge-reported">● Reported</span>',
+            'VERIFIED': '<span class="badge badge-verified">● Verified</span>',
+            'IN_PROGRESS': '<span class="badge badge-in-progress">● In Progress</span>',
+            'RESOLVED': '<span class="badge badge-resolved">● Resolved</span>',
+            'DRAFT': '<span class="badge badge-draft">● Draft</span>'
         };
-        return map[status] || `<span class="badge bg-dark">${status}</span>`;
+
+        return map[status] || `<span class="badge badge-draft">● ${escapeHTML(status)}</span>`;
     }
 
-    // Fungsi tombol aksi — Admin HANYA bisa ubah status, tidak ada Edit/Hapus
-    function getActionButtons(report) {
-        let statusBtn = '';
+    function getStatusActionButton(report) {
+        if (!USER_IS_ADMIN) {
+            return '';
+        }
 
         if (report.status === 'REPORTED') {
-            statusBtn = `
-                <form method="post" action="/reports/${report.id}/update-status/">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            return `
+                <form method="post" action="/reports/${report.id}/update-status/" class="d-inline">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
                     <input type="hidden" name="status" value="VERIFIED">
-                    <button type="submit" class="btn btn-sm btn-primary">Verifikasi</button>
-                </form>`;
-        } else if (report.status === 'VERIFIED') {
-            statusBtn = `
-                <form method="post" action="/reports/${report.id}/update-status/">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <button type="submit"
+                            class="btn btn-sm"
+                            style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.35);color:#93c5fd;font-size:0.78rem;">
+                        Verifikasi
+                    </button>
+                </form>
+            `;
+        }
+
+        if (report.status === 'VERIFIED') {
+            return `
+                <form method="post" action="/reports/${report.id}/update-status/" class="d-inline">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
                     <input type="hidden" name="status" value="IN_PROGRESS">
-                    <button type="submit" class="btn btn-sm btn-warning text-dark">Proses</button>
-                </form>`;
-        } else if (report.status === 'IN_PROGRESS') {
-            statusBtn = `
-                <form method="post" action="/reports/${report.id}/update-status/">
-                    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                    <button type="submit"
+                            class="btn btn-sm"
+                            style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fcd34d;font-size:0.78rem;">
+                        Proses
+                    </button>
+                </form>
+            `;
+        }
+
+        if (report.status === 'IN_PROGRESS') {
+            return `
+                <form method="post" action="/reports/${report.id}/update-status/" class="d-inline">
+                    <input type="hidden" name="csrfmiddlewaretoken" value="${CSRF_TOKEN}">
                     <input type="hidden" name="status" value="RESOLVED">
-                    <button type="submit" class="btn btn-sm btn-success">Selesaikan</button>
-                </form>`;
+                    <button type="submit"
+                            class="btn btn-sm"
+                            style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#86efac;font-size:0.78rem;">
+                        Selesaikan
+                    </button>
+                </form>
+            `;
+        }
+
+        return '';
+    }
+
+    function getCitizenDraftActions(report) {
+        if (!USER_IS_AUTHENTICATED || USER_IS_ADMIN || report.status !== 'DRAFT') {
+            return '';
         }
 
         return `
-            <div class="d-flex flex-wrap gap-2">
-                <button type="button" class="btn btn-sm btn-secondary detail-btn"
-                    data-id="${report.id}">Detail</button>
-                ${statusBtn}
-            </div>`;
+            <a href="/reports/${report.id}/edit/" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-pencil"></i>
+            </a>
+
+            <a href="/reports/${report.id}/delete/"
+               class="btn btn-sm"
+               style="background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.3);color:#fca5a5;">
+                <i class="bi bi-trash"></i>
+            </a>
+        `;
     }
 
-    const originalTableHTML = reportTableBody.innerHTML;
+    function getActionButtons(report) {
+        return `
+            <div class="action-btn-group">
+                <button type="button"
+                        class="btn btn-secondary btn-sm detail-btn"
+                        data-id="${report.id}">
+                    <i class="bi bi-eye me-1"></i>Detail
+                </button>
 
-    searchInput.addEventListener('keyup', function () {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(function () {
-            const keyword = searchInput.value.trim();
-            if (keyword === '') {
-                reportTableBody.innerHTML = originalTableHTML;
+                ${getStatusActionButton(report)}
+                ${getCitizenDraftActions(report)}
+            </div>
+        `;
+    }
+
+    const originalHTML = reportTableBody ? reportTableBody.innerHTML : '';
+
+    if (searchInput && reportTableBody) {
+        searchInput.addEventListener('keyup', function () {
+            clearTimeout(debounceTimer);
+
+            debounceTimer = setTimeout(function () {
+                const keyword = searchInput.value.trim();
+
+                if (keyword === '') {
+                    reportTableBody.innerHTML = originalHTML;
+                    return;
+                }
+
+                fetch(`/reports/search/?q=${encodeURIComponent(keyword)}`)
+                    .then(function (response) {
+                        if (!response.ok) {
+                            throw new Error('Gagal mengambil data pencarian.');
+                        }
+
+                        return response.json();
+                    })
+                    .then(function (data) {
+                        reportTableBody.innerHTML = '';
+
+                        if (!data.reports || data.reports.length === 0) {
+                            reportTableBody.innerHTML = `
+                                <tr>
+                                    <td colspan="5" class="text-center" style="color:#64748b;padding:2rem;">
+                                        <i class="bi bi-search d-block mb-2" style="font-size:1.5rem;"></i>
+                                        Tidak ada laporan yang sesuai.
+                                    </td>
+                                </tr>
+                            `;
+                            return;
+                        }
+
+                        data.reports.forEach(function (report) {
+                            reportTableBody.innerHTML += `
+                                <tr>
+                                    <td><span class="fw-semibold">${escapeHTML(report.title)}</span></td>
+                                    <td><span style="color:#94a3b8;font-size:0.87rem;">${escapeHTML(report.category)}</span></td>
+                                    <td>
+                                        <span style="color:#94a3b8;font-size:0.87rem;">
+                                            <i class="bi bi-geo-alt-fill me-1" style="color:#475569;"></i>
+                                            ${escapeHTML(report.location)}
+                                        </span>
+                                    </td>
+                                    <td>${getStatusBadge(report.status)}</td>
+                                    <td>${getActionButtons(report)}</td>
+                                </tr>
+                            `;
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error(error);
+
+                        reportTableBody.innerHTML = `
+                            <tr>
+                                <td colspan="5" class="text-center" style="color:#fca5a5;padding:2rem;">
+                                    <i class="bi bi-exclamation-triangle d-block mb-2" style="font-size:1.5rem;"></i>
+                                    Gagal memuat hasil pencarian.
+                                </td>
+                            </tr>
+                        `;
+                    });
+            }, 400);
+        });
+    }
+
+    if (reportTableBody) {
+        reportTableBody.addEventListener('click', function (event) {
+            const btn = event.target.closest('.detail-btn');
+
+            if (!btn) {
                 return;
             }
-            fetch(`/reports/search-json/?q=${encodeURIComponent(keyword)}`)
-                .then(r => r.json())
-                .then(data => {
-                    reportTableBody.innerHTML = '';
-                    if (data.reports.length === 0) {
-                        reportTableBody.innerHTML = `
-                            <tr><td colspan="5" class="text-center text-muted">
-                                Tidak ada laporan yang sesuai.
-                            </td></tr>`;
-                        return;
-                    }
-                    data.reports.forEach(report => {
-                        reportTableBody.innerHTML += `
-                            <tr>
-                                <td>${report.title}</td>
-                                <td>${report.category}</td>
-                                <td>${report.location}</td>
-                                <td>${getStatusBadge(report.status)}</td>
-                                <td>${getActionButtons(report)}</td>
-                            </tr>`;
-                    });
-                });
-        }, 400);
-    });
 
-    reportTableBody.addEventListener('click', function (e) {
-        const btn = e.target.closest('.detail-btn');
-        if (!btn) return;
-        fetch(`/reports/detail-json/${btn.dataset.id}/`)
-            .then(r => r.json())
-            .then(report => {
-                document.getElementById('modalTitle').textContent       = report.title;
-                document.getElementById('modalCategory').textContent    = report.category;
-                document.getElementById('modalLocation').textContent    = report.location;
-                document.getElementById('modalDescription').textContent = report.description;
-                document.getElementById('modalStatus').innerHTML        = getStatusBadge(report.status);
-                reportDetailModal.show();
-            });
-    });
+            const reportId = btn.dataset.id;
+
+            document.getElementById('modalTitle').textContent = 'Memuat detail...';
+            document.getElementById('modalCategory').textContent = '-';
+            document.getElementById('modalLocation').textContent = '-';
+            document.getElementById('modalDescription').textContent = '-';
+            document.getElementById('modalStatus').innerHTML = '<span class="badge badge-draft">Memuat...</span>';
+
+            openCustomModal();
+
+            fetch(`/reports/detail-json/${reportId}/`)
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Gagal mengambil detail laporan.');
+                    }
+
+                    return response.json();
+                })
+                .then(function (report) {
+                    document.getElementById('modalTitle').textContent = report.title || '-';
+                    document.getElementById('modalCategory').textContent = report.category || '-';
+                    document.getElementById('modalLocation').textContent = report.location || '-';
+                    document.getElementById('modalDescription').textContent = report.description || '-';
+                    document.getElementById('modalStatus').innerHTML = getStatusBadge(report.status);
+                })
+                .catch(function (error) {
+                    console.error(error);
+                    closeCustomModal();
+                    alert('Detail laporan gagal dimuat atau Anda tidak memiliki akses.');
+                });
+        });
+    }
 });
 </script>
 {% endblock %}

@@ -85,7 +85,7 @@ function pageDashboard() {
                 </div>
 
                 <!-- Rekap Status -->
-                <div class="card border-0 shadow-sm p-3">
+                <div class="card border-0 shadow-sm p-3" id="summaryStats">
                     <h6 class="fw-bold mb-3">
                         <i class="bi bi-bar-chart-fill text-primary me-2"></i>Rekap Laporan
                     </h6>
@@ -111,10 +111,10 @@ function pageDashboard() {
                     <button class="btn btn-primary btn-sm fw-bold" onclick="switchTab('my_reports')" id="tabMyReports">
                         <i class="bi bi-person-lines-fill me-1"></i>Laporan Saya
                     </button>
-                    <button class="btn btn-outline-primary btn-sm fw-bold" onclick="switchTab('feed')" id="tabFeed">
+                    <button class="btn btn-outline-primary btn-sm fw-bold" onclick="switchTab('feed')" id="tabFeedKota">
                         <i class="bi bi-globe me-1"></i>Feed Kota
                     </button>
-                    <button class="btn btn-success btn-sm fw-bold ms-auto" onclick="openCreateModal()">
+                    <button class="btn btn-success btn-sm fw-bold ms-auto" onclick="openCreateModal()" id="btnBukaModal">
                         <i class="bi bi-plus-circle-fill me-1"></i>Buat Laporan
                     </button>
                 </div>
@@ -154,7 +154,7 @@ function switchTab(tab) {
 
     document.getElementById('tabMyReports').className =
         tab === 'my_reports' ? 'btn btn-primary btn-sm fw-bold' : 'btn btn-outline-primary btn-sm fw-bold';
-    document.getElementById('tabFeed').className =
+    document.getElementById('tabFeedKota').className =
         tab === 'feed' ? 'btn btn-primary btn-sm fw-bold' : 'btn btn-outline-primary btn-sm fw-bold';
 
     loadDashboardData(tab, 1);
@@ -243,8 +243,9 @@ function renderList(reports) {
         ` : '';
 
         return `
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-body">
+            <div class="col">
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start mb-2">
                         <h6 class="fw-bold mb-0">${report.title}</h6>
                         <span class="badge bg-${s.color}">${s.label}</span>
@@ -374,10 +375,10 @@ async function editDraft(id) {
 
     const report = await response.json();
 
-    document.getElementById('fieldTitle').value       = report.title;
-    document.getElementById('fieldCategory').value    = report.category;
-    document.getElementById('fieldDescription').value = report.description;
-    document.getElementById('fieldLocation').value    = report.location;
+    document.getElementById('inputTitle').value       = report.title;
+    document.getElementById('inputCategory').value    = report.category;
+    document.getElementById('inputDescription').value = report.description;
+    document.getElementById('inputLocation').value    = report.location;
     document.getElementById('reportModalLabel').innerHTML =
         '<i class="bi bi-pencil me-2"></i>Edit Draft Laporan';
 
@@ -415,10 +416,10 @@ function setupModalButtons() {
 // =====================
 async function submitReport(status) {
     const body = {
-        title:       document.getElementById('fieldTitle').value,
-        category:    document.getElementById('fieldCategory').value,
-        description: document.getElementById('fieldDescription').value,
-        location:    document.getElementById('fieldLocation').value,
+        title:       document.getElementById('inputTitle').value,
+        category:    document.getElementById('inputCategory').value,
+        description: document.getElementById('inputDescription').value,
+        location:    document.getElementById('inputLocation').value,
         status:      status,
     };
 
@@ -432,6 +433,8 @@ async function submitReport(status) {
         bootstrap.Modal.getInstance(document.getElementById('reportModal')).hide();
         document.getElementById('reportForm').reset();
         editingReportId = null;
+        const statusLabel = status === 'DRAFT' ? 'DRAFT' : 'REPORTED';
+        alert(`Laporan berhasil disimpan sebagai ${statusLabel}`);
         loadDashboardData(currentTab, currentPage);
     } else {
         const err = await response.json();

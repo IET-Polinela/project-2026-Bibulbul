@@ -25,4 +25,5 @@ urlpatterns = [
     path('contacts/', ContactsView.as_view(), name='contacts'),
     path('reports/search-json/', ReportSearchJsonView.as_view(), name='report_search_json'),
     path('reports/detail-json/<int:pk>/', ReportDetailJsonView.as_view(), name='report_detail_json'),
+    path('reports/search/', ReportSearchJsonView.as_view(), name='report_search'),
 ]

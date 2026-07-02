@@ -1,35 +1,91 @@
 {% extends 'base.html' %}
+{% block title %}Masuk — Bogor SmartCity{% endblock %}
 
-{% block title %}Login{% endblock %}
+{% block extra_css %}
+<style>
+    .auth-wrap { min-height: calc(100vh - 180px); display: flex; align-items: center; justify-content: center; padding: 2rem 0; }
+    .auth-card { width: 100%; max-width: 420px; }
+    .auth-logo {
+        width: 56px; height: 56px; border-radius: 16px;
+        background: linear-gradient(135deg, #2563eb, #06b6d4);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: white; margin: 0 auto 1.5rem;
+        box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+    }
+    .auth-title { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; color: #e2e8f0; text-align: center; margin-bottom: 0.4rem; }
+    .auth-sub   { color: #475569; font-size: 0.875rem; text-align: center; margin-bottom: 2rem; }
+    .auth-divider { display: flex; align-items: center; gap: 12px; margin: 1.5rem 0; }
+    .auth-divider span { color: #334155; font-size: 0.8rem; white-space: nowrap; }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(96,165,250,0.1); }
+    .auth-footer-link { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: #475569; }
+    .auth-footer-link a { color: #60a5fa; text-decoration: none; font-weight: 600; }
+    .auth-footer-link a:hover { color: #93c5fd; }
+    .input-icon-wrap { position: relative; }
+    .input-icon-wrap i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: #475569; font-size: 0.95rem; pointer-events: none; }
+    .input-icon-wrap .form-control { padding-left: 38px !important; }
+</style>
+{% endblock %}
 
 {% block content %}
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/">Home</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Login</li>
-    </ol>
-</nav>
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="card">
+            <div class="card-body" style="padding:2.5rem 2.2rem;">
+                <div class="auth-logo"><i class="bi bi-buildings-fill"></i></div>
+                <h2 class="auth-title">Selamat Datang Kembali</h2>
+                <p class="auth-sub">Masuk ke portal Bogor SmartCity</p>
 
-<div class="card shadow-sm border-0">
-    <div class="card-body p-4">
-        <h2 class="mb-4">Login</h2>
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Username atau password salah. Coba lagi.
+                </div>
+                {% endif %}
 
-        <form method="post">
-            {% csrf_token %}
+                <form method="post" onsubmit="return handleSubmitLoading(this)">
+                    {% csrf_token %}
 
-            <div class="mb-3">
-                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                {{ form.username }}
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-person"></i>
+                            {{ form.username }}
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
+                        <div class="input-icon-wrap">
+                            <i class="bi bi-lock"></i>
+                            {{ form.password }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" style="padding:0.7rem;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
+                    </button>
+                </form>
+
+                <div class="auth-divider"><span>atau</span></div>
+
+                <div class="auth-footer-link">
+                    Belum punya akun? <a href="{% url 'register' %}">Daftar sekarang</a>
+                </div>
             </div>
+        </div>
 
-            <div class="mb-3">
-                <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-                {{ form.password }}
-            </div>
-
-            <button type="submit" class="btn btn-primary">Login</button>
-            <a href="{% url 'register' %}" class="btn btn-secondary">Register</a>
-        </form>
+        <!-- Decorative badges -->
+        <div class="d-flex justify-content-center gap-3 mt-3 flex-wrap">
+            <span style="font-size:0.74rem;color:#334155;display:flex;align-items:center;gap:5px;">
+                <i class="bi bi-shield-check" style="color:#22d3ee;"></i> Data Aman
+            </span>
+            <span style="font-size:0.74rem;color:#334155;display:flex;align-items:center;gap:5px;">
+                <i class="bi bi-lock" style="color:#22d3ee;"></i> Terenkripsi
+            </span>
+            <span style="font-size:0.74rem;color:#334155;display:flex;align-items:center;gap:5px;">
+                <i class="bi bi-buildings" style="color:#22d3ee;"></i> Official Portal
+            </span>
+        </div>
     </div>
 </div>
 {% endblock %}

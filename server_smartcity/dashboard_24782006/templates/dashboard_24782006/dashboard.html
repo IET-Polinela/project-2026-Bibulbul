@@ -1,163 +1,178 @@
 {% extends 'base.html' %}
-
-{% block title %}Dashboard Statistik Laporan{% endblock %}
+{% block title %}Dashboard Statistik — Bogor SmartCity{% endblock %}
 
 {% block extra_css %}
 <style>
-    .dashboard-title {
-        font-weight: 700;
-        margin-bottom: 28px;
-        color: #f8fafc;
+    .stat-kpi-card {
+        padding: 1.4rem 1.6rem;
+        position: relative; overflow: hidden;
     }
+    .stat-kpi-card .kpi-icon {
+        width: 44px; height: 44px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem; margin-bottom: 1rem;
+        flex-shrink: 0;
+    }
+    .stat-kpi-card .kpi-val {
+        font-family: var(--font-display); font-size: 2rem; font-weight: 800;
+        line-height: 1; margin-bottom: 4px;
+    }
+    .stat-kpi-card .kpi-lbl { font-size: 0.78rem; color: #64748b; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+    .stat-kpi-card::after { content: ''; position: absolute; bottom: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: 0.1; }
+    .kpi-blue  .kpi-icon { background: rgba(59,130,246,0.15);  color: #60a5fa;  border: 1px solid rgba(59,130,246,0.25); }
+    .kpi-blue  .kpi-val  { color: #60a5fa; }
+    .kpi-blue::after  { background: #3b82f6; }
+    .kpi-amber .kpi-icon { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+    .kpi-amber .kpi-val  { color: #fcd34d; }
+    .kpi-amber::after { background: #f59e0b; }
+    .kpi-cyan  .kpi-icon { background: rgba(6,182,212,0.15);  color: #22d3ee; border: 1px solid rgba(6,182,212,0.25); }
+    .kpi-cyan  .kpi-val  { color: #22d3ee; }
+    .kpi-cyan::after  { background: #06b6d4; }
+    .kpi-green .kpi-icon { background: rgba(34,197,94,0.15);  color: #86efac; border: 1px solid rgba(34,197,94,0.25); }
+    .kpi-green .kpi-val  { color: #86efac; }
+    .kpi-green::after { background: #22c55e; }
 
-    .dashboard-card {
-        background: rgba(30, 41, 59, 0.95);
-        color: #f8fafc;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 18px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-        padding: 24px;
-        margin-bottom: 24px;
+    .chart-card { padding: 1.5rem 1.6rem; }
+    .chart-card .chart-header { margin-bottom: 1.25rem; }
+    .chart-card .chart-title {
+        font-family: var(--font-display); font-weight: 700; font-size: 1rem;
+        color: #e2e8f0; margin: 0;
     }
+    .chart-inner {
+        background: rgba(6,13,31,0.5); border: 1px solid rgba(96,165,250,0.1);
+        border-radius: 12px; padding: 16px;
+    }
+    canvas { max-height: 300px; }
 
-    .chart-grid,
-    .table-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-        margin-bottom: 28px;
-    }
-
-    .dashboard-card h2 {
-        color: #f8fafc;
-        font-weight: 700;
-        margin-bottom: 20px;
-    }
-
-    .dashboard-card h2.table-title {
-        font-size: 1.25rem;
-    }
-
-    .chart-wrapper {
-        background-color: #0f172a;
-        border: 1px solid rgba(96, 165, 250, 0.18);
-        border-radius: 16px;
-        padding: 18px;
-    }
-
-    canvas {
-        max-height: 360px;
-    }
-
-    .dashboard-table {
-        background-color: #1e293b;
-        color: #f8fafc;
-        border-color: rgba(255, 255, 255, 0.12);
-        border-radius: 16px;
-        overflow: hidden;
-        font-size: 0.86rem;
-    }
-
-    .dashboard-table thead {
-        background: linear-gradient(90deg, #0b132b, #1e3a8a);
-        color: #f8fafc;
-    }
-
-    .dashboard-table th {
-        background: transparent !important;
-        color: #f8fafc;
-        border-color: rgba(255, 255, 255, 0.12);
-        padding: 12px 10px;
-        white-space: nowrap;
-    }
-
-    .dashboard-table td {
-        background-color: #1e293b !important;
-        color: #f8fafc !important;
-        border-color: rgba(255, 255, 255, 0.10);
-        padding: 12px 10px;
-        vertical-align: middle;
-    }
-
-    .dashboard-table tbody tr:nth-child(even) td {
-        background-color: #172033 !important;
-    }
-
-    .dashboard-table tbody tr:hover td {
-        background-color: #273449 !important;
-        color: #ffffff !important;
-    }
-
-    .badge-reported {
-        background-color: #64748b;
-    }
-
-    .badge-resolved {
-        background-color: #198754;
-    }
-
-    @media (max-width: 992px) {
-        .chart-grid,
-        .table-grid {
-            grid-template-columns: 1fr;
-        }
-    }
+    .dash-table-card { padding: 1.4rem 1.5rem; }
+    .dash-table-card .dt-header { margin-bottom: 1.1rem; }
+    .dash-table-card .dt-title { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: #e2e8f0; margin: 0; }
+    .dash-table-card .dt-sub   { font-size: 0.78rem; color: #475569; }
+    .dash-table { font-size: 0.83rem; }
+    .dash-table th { font-size: 0.72rem !important; }
+    .dash-table td { padding: 10px 12px !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<h1 class="dashboard-title">Dashboard Statistik Laporan</h1>
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <div class="section-eyebrow">Analytics</div>
+        <h1 class="section-title mb-0">Dashboard Statistik Laporan</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(6,13,31,0.6);border:1px solid rgba(96,165,250,0.12);border-radius:10px;padding:8px 14px;">
+        <i class="bi bi-clock" style="color:#475569;font-size:0.85rem;"></i>
+        <span style="color:#475569;font-size:0.8rem;">Data live dari database</span>
+    </div>
+</div>
 
-<div class="chart-grid">
-    <div class="dashboard-card">
-        <h2>Distribusi Status Laporan</h2>
-        <div class="chart-wrapper">
-            <canvas id="statusChart"></canvas>
+<!-- KPI Cards -->
+<div class="row g-3 mb-4 stagger" id="kpiRow">
+    <div class="col-6 col-lg-3">
+        <div class="card stat-kpi-card kpi-blue">
+            <div class="kpi-icon"><i class="bi bi-flag-fill"></i></div>
+            <div class="kpi-val" id="kpiReported">—</div>
+            <div class="kpi-lbl">Reported</div>
         </div>
     </div>
-
-    <div class="dashboard-card">
-        <h2>Distribusi Kategori Laporan</h2>
-        <div class="chart-wrapper">
-            <canvas id="categoryChart"></canvas>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-kpi-card kpi-cyan">
+            <div class="kpi-icon"><i class="bi bi-patch-check-fill"></i></div>
+            <div class="kpi-val" id="kpiVerified">—</div>
+            <div class="kpi-lbl">Verified</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-kpi-card kpi-amber">
+            <div class="kpi-icon"><i class="bi bi-arrow-repeat"></i></div>
+            <div class="kpi-val" id="kpiInProgress">—</div>
+            <div class="kpi-lbl">In Progress</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card stat-kpi-card kpi-green">
+            <div class="kpi-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="kpi-val" id="kpiResolved">—</div>
+            <div class="kpi-lbl">Resolved</div>
         </div>
     </div>
 </div>
 
-<div class="table-grid">
-    <div class="dashboard-card">
-        <h2 class="table-title">5 Laporan Terbaru - REPORTED</h2>
-
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Judul</th>
-                        <th>Kategori</th>
-                        <th>Lokasi</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="reportedTable"></tbody>
-            </table>
+<!-- Charts -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-5">
+        <div class="card chart-card h-100">
+            <div class="chart-header">
+                <div class="section-eyebrow">Distribusi</div>
+                <h3 class="chart-title">Status Laporan</h3>
+            </div>
+            <div class="chart-inner">
+                <canvas id="statusChart"></canvas>
+            </div>
         </div>
     </div>
+    <div class="col-lg-7">
+        <div class="card chart-card h-100">
+            <div class="chart-header">
+                <div class="section-eyebrow">Distribusi</div>
+                <h3 class="chart-title">Kategori Laporan</h3>
+            </div>
+            <div class="chart-inner">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <div class="dashboard-card">
-        <h2 class="table-title">5 Laporan Terbaru - RESOLVED</h2>
-
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Judul</th>
-                        <th>Kategori</th>
-                        <th>Lokasi</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody id="resolvedTable"></tbody>
-            </table>
+<!-- Recent Tables -->
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card dash-table-card">
+            <div class="dt-header d-flex align-items-center gap-2">
+                <span style="width:8px;height:8px;border-radius:50%;background:#94a3b8;display:inline-block;"></span>
+                <div>
+                    <div class="dt-title">5 Laporan Terbaru — Reported</div>
+                    <div class="dt-sub">Menunggu verifikasi admin</div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover dash-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Judul</th>
+                            <th>Kategori</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportedTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card dash-table-card">
+            <div class="dt-header d-flex align-items-center gap-2">
+                <span style="width:8px;height:8px;border-radius:50%;background:#86efac;display:inline-block;"></span>
+                <div>
+                    <div class="dt-title">5 Laporan Terbaru — Resolved</div>
+                    <div class="dt-sub">Telah selesai ditangani</div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover dash-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Judul</th>
+                            <th>Kategori</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resolvedTable"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -165,64 +180,44 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     fetch('/dashboard/data/')
         .then(response => response.json())
         .then(data => {
-            console.log('Data JSON dashboard:', data);
+            /* ── KPI Cards ─────────────────────────────────── */
+            const statusMap = { REPORTED: 'kpiReported', VERIFIED: 'kpiVerified', IN_PROGRESS: 'kpiInProgress', RESOLVED: 'kpiResolved' };
+            data.status_labels.forEach((lbl, i) => {
+                const key = lbl.replace(' ', '_').toUpperCase();
+                const el = document.getElementById(statusMap[key]);
+                if (el) el.textContent = data.status_values[i];
+            });
 
-            const chartTextColor = '#cbd5e1';
-            const chartGridColor = 'rgba(255, 255, 255, 0.08)';
+            const textColor = '#94a3b8';
+            const gridColor = 'rgba(96,165,250,0.06)';
 
-            const statusColors = [
-                '#38bdf8',
-                '#fb7185',
-                '#f97316',
-                '#facc15',
-                '#22c55e',
-                '#a78bfa'
-            ];
-
-            const categoryColors = [
-                '#38bdf8',
-                '#60a5fa',
-                '#818cf8',
-                '#a78bfa',
-                '#22c55e',
-                '#facc15',
-                '#fb7185',
-                '#f97316',
-                '#14b8a6',
-                '#e879f9'
-            ];
-
+            /* ── Doughnut chart ─────────────────────────────── */
             new Chart(document.getElementById('statusChart'), {
                 type: 'doughnut',
                 data: {
                     labels: data.status_labels,
                     datasets: [{
-                        label: 'Jumlah Status',
                         data: data.status_values,
-                        backgroundColor: statusColors,
-                        borderColor: '#0f172a',
+                        backgroundColor: ['#3b82f6','#22d3ee','#f59e0b','#22c55e','#a78bfa','#fb7185'],
+                        borderColor: '#0d1733',
                         borderWidth: 3,
-                        hoverOffset: 10
+                        hoverOffset: 8
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            labels: {
-                                color: chartTextColor
-                            }
-                        }
+                        legend: { labels: { color: textColor, padding: 14, font: { size: 12 } } }
                     }
                 }
             });
 
+            /* ── Bar chart ──────────────────────────────────── */
             new Chart(document.getElementById('categoryChart'), {
                 type: 'bar',
                 data: {
@@ -230,71 +225,49 @@ document.addEventListener('DOMContentLoaded', function () {
                     datasets: [{
                         label: 'Jumlah Laporan',
                         data: data.category_values,
-                        backgroundColor: categoryColors,
-                        borderColor: '#93c5fd',
-                        borderWidth: 1,
-                        borderRadius: 8
+                        backgroundColor: ['#3b82f6','#22d3ee','#818cf8','#a78bfa','#22c55e','#fbbf24','#fb7185','#f97316','#14b8a6','#e879f9'],
+                        borderRadius: 8,
+                        borderSkipped: false
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            labels: {
-                                color: chartTextColor
-                            }
-                        }
+                        legend: { labels: { color: textColor, font: { size: 12 } } }
                     },
                     scales: {
-                        x: {
-                            ticks: {
-                                color: chartTextColor
-                            },
-                            grid: {
-                                color: chartGridColor
-                            }
-                        },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: chartTextColor
-                            },
-                            grid: {
-                                color: chartGridColor
-                            }
-                        }
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { beginAtZero: true, ticks: { color: textColor }, grid: { color: gridColor } }
                     }
                 }
             });
 
+            /* ── Tables ─────────────────────────────────────── */
             const reportedTable = document.getElementById('reportedTable');
             const resolvedTable = document.getElementById('resolvedTable');
 
-            data.latest_reported.forEach(report => {
-                reportedTable.innerHTML += `
-                    <tr>
-                        <td>${report.title}</td>
-                        <td>${report.category}</td>
-                        <td>${report.location}</td>
-                        <td><span class="badge badge-reported">${report.status}</span></td>
-                    </tr>
-                `;
-            });
+            function fillTable(el, rows) {
+                if (!el) return;
+                if (rows.length === 0) {
+                    el.innerHTML = `<tr><td colspan="4" style="text-align:center;color:#475569;padding:1.5rem;">Tidak ada data</td></tr>`;
+                    return;
+                }
+                rows.forEach(r => {
+                    el.innerHTML += `<tr>
+                        <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.title}</td>
+                        <td style="color:#94a3b8;">${r.category}</td>
+                        <td style="color:#94a3b8;">${r.location}</td>
+                        <td>${r.status === 'RESOLVED'
+                            ? '<span class="badge badge-resolved">● Resolved</span>'
+                            : '<span class="badge badge-reported">● Reported</span>'}</td>
+                    </tr>`;
+                });
+            }
 
-            data.latest_resolved.forEach(report => {
-                resolvedTable.innerHTML += `
-                    <tr>
-                        <td>${report.title}</td>
-                        <td>${report.category}</td>
-                        <td>${report.location}</td>
-                        <td><span class="badge badge-resolved">${report.status}</span></td>
-                    </tr>
-                `;
-            });
+            fillTable(reportedTable, data.latest_reported);
+            fillTable(resolvedTable, data.latest_resolved);
         })
-        .catch(error => {
-            console.error('Gagal mengambil data dashboard:', error);
-        });
+        .catch(err => console.error('Gagal mengambil data dashboard:', err));
 });
 </script>
 {% endblock %}
