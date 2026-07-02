@@ -7,9 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: github-pages
@@ -20,26 +18,13 @@ jobs:
     name: deploy
     runs-on: ubuntu-latest
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload frontend artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy SPA to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          path: smartcity_citizen_spa_24782006
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          timeout: 1200000
-          error_count: 20
-          reporting_interval: 5000
+          branch: gh-pages
+          folder: smartcity_citizen_spa_24782006
+          clean: true
